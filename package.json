@@ -1,0 +1,57 @@
+{
+  "name": "bardforge-studio",
+  "version": "0.1.0-dev.1",
+  "private": true,
+  "description": "Local audio scenes for tabletop RPG sessions",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:web": "vite --host 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run typecheck && vite build",
+    "start": "electron .",
+    "test": "vitest run && node --test tests/*.node.test.mjs",
+    "test:e2e": "playwright test",
+    "check:public": "node scripts/check-public.mjs",
+    "package:win": "npm run build && node scripts/package.mjs",
+    "lint": "eslint . --max-warnings 0",
+    "format": "prettier --write src tests electron scripts *.ts *.js *.json *.html *.md .github",
+    "format:check": "prettier --check src tests electron scripts *.ts *.js *.json *.html *.md .github",
+    "check:licenses": "node scripts/check-licenses.mjs",
+    "test:desktop": "node scripts/desktop-smoke.mjs"
+  },
+  "engines": {
+    "node": ">=22.12"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.11",
+    "lucide-react": "^1.66.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "yauzl": "^3.4.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "electron": "^45.2.1",
+    "electron-builder": "^26.18.0",
+    "eslint": "^10.14.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "fake-indexeddb": "^6.2.7",
+    "globals": "^17.14.0",
+    "prettier": "^3.9.10",
+    "typescript": "~6.0.0",
+    "typescript-eslint": "^8.72.1",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  },
+  "overrides": {
+    "glob": "^14.0.3",
+    "minimatch": "^11.0.3"
+  }
+}

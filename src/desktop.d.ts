@@ -1,0 +1,24 @@
+interface ComponentState {
+  id: string;
+  name: string;
+  description: string;
+  version: string;
+  bytes: number;
+  received: number;
+  status: 'available' | 'downloading' | 'installing' | 'installed' | 'paused' | 'error';
+  message?: string;
+}
+interface DesktopStatus {
+  version: string;
+  update: { status: string; message: string; percent?: number };
+  components: ComponentState[];
+}
+interface Window {
+  bardforge?: {
+    status(): Promise<DesktopStatus>;
+    checkUpdates(): Promise<void>;
+    installUpdate(): Promise<void>;
+    installComponent(id: string): Promise<void>;
+    cancelComponent(id: string): Promise<void>;
+  };
+}

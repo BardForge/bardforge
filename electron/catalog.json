@@ -1,0 +1,17 @@
+[
+  {
+    "id": "python",
+    "name": "Python для модулей",
+    "description": "Изолированный Python 3.14.10. Микшер работает без него; среда предназначена для дополнительных модулей.",
+    "version": "3.14.10",
+    "kind": "runtime",
+    "platform": "win32",
+    "arch": "x64",
+    "url": "https://www.python.org/ftp/python/3.14.10/python-3.14.10-embed-amd64.zip",
+    "bytes": 12619664,
+    "sha256": "90905e64a840557d8c1bc4f5b74db3d7ee85e3ffb217611cac1c7813acea4159",
+    "entrypoint": "python.exe",
+    "license": "PSF-2.0",
+    "licenseUrl": "https://docs.python.org/3/license.html"
+  }
+]
