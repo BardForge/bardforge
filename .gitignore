@@ -41,3 +41,5 @@ superpowers/
 .superpowers/
 /private/
 /internal/
+test-results/
+playwright-report/
