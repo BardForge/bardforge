@@ -58,6 +58,7 @@ jobs:
       - run: npm run test:e2e
       - run: npm run package:win
       - run: npm run test:desktop
+      - run: npm run test:installer
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:

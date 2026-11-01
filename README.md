@@ -40,12 +40,15 @@ npx playwright install chromium
 npm run test:e2e
 npm run package:win
 npm run test:desktop
+npm run test:installer
 npm audit --audit-level=moderate
 npm run check:licenses
 npm run check:public
 ```
 
 Установщик создаётся в `build/`, распакованное приложение — в `build/win-unpacked/`. Сборка никогда не публикует релиз автоматически.
+
+`test:installer` устанавливает EXE в новую тестовую папку, сверяет файлы, проверяет работу и удаляет тестовую установку. Он отказывается работать при уже установленном или запущенном BardForge. Для сетевой проверки загрузки Python задайте `BARDFORGE_TEST_DOWNLOADS=1`. Обновления скачиваются целиком; дифференциальная загрузка пока отключена.
 
 ## Данные и обновления
 

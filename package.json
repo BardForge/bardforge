@@ -19,7 +19,8 @@
     "format": "prettier --write src tests electron scripts *.ts *.js *.json *.html *.md .github",
     "format:check": "prettier --check src tests electron scripts *.ts *.js *.json *.html *.md .github",
     "check:licenses": "node scripts/check-licenses.mjs",
-    "test:desktop": "node scripts/desktop-smoke.mjs"
+    "test:desktop": "node scripts/desktop-smoke.mjs",
+    "test:installer": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/installer-smoke.ps1"
   },
   "engines": {
     "node": ">=22.12"

@@ -17,6 +17,10 @@ await build({
       signAndEditExecutable: false,
     },
     nsis: {
+      // Extract directly to the chosen destination and check extraction errors.
+      // The 7z NSIS plugin can silently truncate on a full temporary drive.
+      useZip: true,
+      differentialPackage: false,
       oneClick: false,
       perMachine: false,
       allowElevation: false,

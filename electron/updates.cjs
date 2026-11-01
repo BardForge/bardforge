@@ -11,6 +11,7 @@ function createUpdates(updater, enabled) {
   updater.allowPrerelease = false;
   updater.allowDowngrade = false;
   updater.disableWebInstaller = true;
+  updater.disableDifferentialDownload = true;
   updater.logger = null;
   updater.on('checking-for-update', () => {
     status = { status: 'checking', message: 'Проверяем обновления…' };

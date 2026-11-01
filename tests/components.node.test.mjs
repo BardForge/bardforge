@@ -56,3 +56,43 @@ test('rejects archive traversal, ADS, symlinks and special device filenames', ()
   assert.throws(() => safeEntry({ fileName: 'link', externalFileAttributes: 0o120777 << 16 }), /Unsafe/);
   assert.equal(safeEntry({ fileName: 'Lib/hello.py', externalFileAttributes: 0 }), 'Lib/hello.py');
 });
+
+test('cancelling a download retains partial bytes that a retry can resume', async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'bardforge-download-'));
+  const file = path.join(dir, 'component.part');
+  const controller = new AbortController();
+  const response = new Response(
+    new ReadableStream({
+      start(stream) {
+        stream.enqueue(bytes.subarray(0, 8));
+        stream.enqueue(bytes.subarray(8));
+        stream.close();
+      },
+    }),
+  );
+  await assert.rejects(
+    downloadVerified(
+      item,
+      file,
+      controller.signal,
+      () => controller.abort(),
+      async () => response,
+    ),
+    { name: 'AbortError' },
+  );
+  assert.deepEqual(await readFile(file), bytes.subarray(0, 8));
+  await downloadVerified(
+    item,
+    file,
+    new AbortController().signal,
+    () => {},
+    async (_url, options) => {
+      assert.equal(options.headers.Range, 'bytes=8-');
+      return new Response(bytes.subarray(8), {
+        status: 206,
+        headers: { 'Content-Range': `bytes 8-${bytes.length - 1}/${bytes.length}` },
+      });
+    },
+  );
+  assert.deepEqual(await readFile(file), bytes);
+});
