@@ -40,12 +40,22 @@ try {
   await page.getByLabel('Название сцены').fill('Desktop persistence check');
   await page.getByRole('button', { name: 'Сохранить', exact: true }).click();
   await page.getByRole('status', { name: 'Сохранение сцены' }).filter({ hasText: 'Сохранено' }).waitFor();
+  await page.getByLabel('Язык / Language').selectOption('en');
+  await page.getByRole('button', { name: 'Application and components', exact: true }).click();
+  await page
+    .getByText('Development build. Updates will be enabled in stable releases.', { exact: true })
+    .waitFor();
+  await page.getByText('Python for modules', { exact: false }).waitFor();
+  await page.getByRole('button', { name: 'Close settings' }).click();
   await desktop.close();
   desktop = undefined;
   desktop = await electron.launch({ executablePath, env });
   page = await desktop.firstWindow();
-  await page.getByLabel('Название сцены').waitFor();
-  assert.equal(await page.getByLabel('Название сцены').inputValue(), 'Desktop persistence check');
+  await page.getByLabel('Scene name').waitFor();
+  assert.equal(await page.getByLabel('Scene name').inputValue(), 'Desktop persistence check');
+  assert.equal(await page.getByLabel('Язык / Language').inputValue(), 'en');
+  assert.equal(await page.locator('html').getAttribute('lang'), 'en');
+  await page.getByLabel('Язык / Language').selectOption('ru');
   assert.equal(await page.getByTestId('track-row').count(), 3);
   if (process.env.BARDFORGE_TEST_DOWNLOADS === '1') {
     await page.getByRole('button', { name: 'Приложение и компоненты', exact: true }).click();

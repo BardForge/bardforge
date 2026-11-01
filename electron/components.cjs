@@ -141,8 +141,6 @@ class ComponentManager {
     return Promise.all(
       catalog.map(async (item) => ({
         id: item.id,
-        name: item.name,
-        description: item.description,
         bytes: item.bytes,
         version: item.version,
         status: (await this.installed(item)) ? 'installed' : 'available',
@@ -171,7 +169,7 @@ class ComponentManager {
       state('downloading', { received: 0 });
       await fs.mkdir(this.root, { recursive: true });
       const space = await fs.statfs(this.root);
-      if (space.bavail * space.bsize < item.bytes * 5) throw new Error('Недостаточно места на диске');
+      if (space.bavail * space.bsize < item.bytes * 5) throw new Error('disk-space');
       const archive = path.join(this.root, `${id}-${item.version}.part`);
       await downloadVerified(item, archive, controller.signal, (received) =>
         state('downloading', { received }),
@@ -208,9 +206,7 @@ class ComponentManager {
       return destination;
     } catch (error) {
       state(controller.signal.aborted ? 'paused' : 'error', {
-        message: controller.signal.aborted
-          ? 'Загрузка приостановлена. Можно продолжить.'
-          : `Не удалось подготовить компонент. Проверьте сеть и место на диске, затем повторите. (${error.message})`,
+        errorCode: error.message === 'disk-space' || error.code === 'ENOSPC' ? 'disk-space' : 'download',
       });
     } finally {
       if (staging && path.dirname(staging) === this.root)

@@ -1,8 +1,8 @@
+import { t, nameOf, errorText } from '../i18n';
 import { MoreHorizontal, Pause, Play, Repeat2, Trash2, Volume2, AudioLines } from 'lucide-react';
 import { timeLabel, type Track } from '../domain/scene';
 import type { Studio } from '../useStudio';
 import { IconButton, Volume } from './Controls';
-
 export function TrackRow({
   track,
   studio,
@@ -25,7 +25,7 @@ export function TrackRow({
       data-position={position.toFixed(2)}
     >
       <IconButton
-        label={`${playing ? 'Пауза' : 'Играть'}: ${track.name}`}
+        label={`${playing ? t('Пауза') : t('Играть')}: ${nameOf(track)}`}
         className="track-play"
         disabled={studio.busy || !state}
         onClick={() => (playing ? studio.pause([track.id]) : void studio.play([track.id]))}
@@ -35,21 +35,23 @@ export function TrackRow({
       <div className="track-info">
         <button
           className="track-name"
-          aria-label={`Параметры: ${track.name}`}
+          aria-label={t('Параметры: {p0}', { p0: nameOf(track) })}
           onClick={() => onSelect(track.id)}
         >
           <AudioLines size={18} />
-          {track.name}
+          {nameOf(track)}
         </button>
         <span>
-          {state?.error ??
-            (!state && !studio.busy ? 'Файл не найден' : `Аудио · ${timeLabel(track.duration)}`)}
+          {errorText(state?.error) ||
+            (!state && !studio.busy
+              ? t('Файл не найден')
+              : t('Аудио · {p0}', { p0: timeLabel(track.duration) }))}
         </span>
       </div>
       <div className="track-progress">
         <input
           type="range"
-          aria-label={`Позиция: ${track.name}`}
+          aria-label={t('Позиция: {p0}', { p0: nameOf(track) })}
           min={0}
           max={track.duration}
           step={0.1}
@@ -62,7 +64,7 @@ export function TrackRow({
         </span>
       </div>
       <IconButton
-        label={`Повтор: ${track.name}`}
+        label={t('Повтор: {p0}', { p0: nameOf(track) })}
         active={track.loop}
         disabled={studio.busy}
         onClick={() => change({ loop: !track.loop })}
@@ -72,14 +74,17 @@ export function TrackRow({
       <div className="track-volume">
         <Volume2 size={17} />
         <Volume
-          label={`Громкость дорожки: ${track.name}`}
+          label={t('Громкость дорожки: {p0}', { p0: nameOf(track) })}
           value={track.gain}
           disabled={studio.busy}
           onChange={(gain) => change({ gain })}
         />
       </div>
       <details className="menu">
-        <summary aria-label={`Настройки дорожки: ${track.name}`} title="Настройки дорожки">
+        <summary
+          aria-label={t('Настройки дорожки: {p0}', { p0: nameOf(track) })}
+          title={t('Настройки дорожки')}
+        >
           <MoreHorizontal size={20} />
         </summary>
         <div className="menu-content">
@@ -90,7 +95,7 @@ export function TrackRow({
               disabled={studio.busy}
               onChange={(e) => change({ muted: e.target.checked })}
             />{' '}
-            Без звука
+            {t('Без звука')}
           </label>
           <label className="check">
             <input
@@ -99,25 +104,26 @@ export function TrackRow({
               disabled={studio.busy}
               onChange={(e) => change({ solo: e.target.checked })}
             />{' '}
-            Соло
+            {t('Соло')}
           </label>
           <label>
-            Группа
+            {t('Группа')}
             <select
-              aria-label={`Группа дорожки: ${track.name}`}
+              aria-label={t('Группа дорожки: {p0}', { p0: nameOf(track) })}
               value={track.groupId}
               disabled={studio.busy}
               onChange={(e) => change({ groupId: e.target.value })}
             >
               {studio.scene?.groups.map((g) => (
                 <option key={g.id} value={g.id}>
-                  {g.name}
+                  {nameOf(g)}
                 </option>
               ))}
             </select>
           </label>
           <button className="danger" disabled={studio.busy} onClick={() => studio.removeTrack(track.id)}>
-            <Trash2 size={15} /> Удалить дорожку
+            <Trash2 size={15} />
+            {t('Удалить дорожку')}
           </button>
         </div>
       </details>

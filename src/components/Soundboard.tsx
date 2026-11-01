@@ -1,8 +1,8 @@
+import { t, nameOf } from '../i18n';
 import { useEffect, useState } from 'react';
 import { AudioLines, Bell, CloudRain, Music2, Pause, Plus, Sparkles } from 'lucide-react';
 import type { Studio } from '../useStudio';
 import { ancestors } from '../domain/scene';
-
 const icons = [CloudRain, Music2, Bell, Sparkles, AudioLines];
 export function Soundboard({ studio, onImport }: { studio: Studio; onImport: () => void }) {
   const [selectedFilter, setFilter] = useState('all');
@@ -37,25 +37,27 @@ export function Soundboard({ studio, onImport }: { studio: Studio; onImport: () 
     return () => window.removeEventListener('keydown', key);
   });
   return (
-    <section className="soundboard" id="soundboard" aria-label="Звуковая панель">
+    <section className="soundboard" id="soundboard" aria-label={t('Звуковая панель')}>
       <div className="soundboard-heading">
         <h2>
-          <AudioLines size={18} /> Звуковая панель
+          <AudioLines size={18} />
+          {t('Звуковая панель')}
         </h2>
         <div className="soundboard-filters">
           <button className={filter === 'all' ? 'chosen' : ''} onClick={() => setFilter('all')}>
-            Все
+            {t('Все')}
           </button>
           {groups
             .filter((g) => !g.parentId)
             .map((g) => (
               <button key={g.id} className={filter === g.id ? 'chosen' : ''} onClick={() => setFilter(g.id)}>
-                {g.name}
+                {nameOf(g)}
               </button>
             ))}
         </div>
         <button className="button subtle" disabled={studio.busy} onClick={onImport}>
-          <Plus size={15} /> Добавить аудио
+          <Plus size={15} />
+          {t('Добавить аудио')}
         </button>
       </div>
       <div className="soundboard-tiles">
@@ -70,18 +72,21 @@ export function Soundboard({ studio, onImport }: { studio: Studio; onImport: () 
                 key={track.id}
                 className={`sound-tile tile-${index % 5} ${playing ? 'tile-playing' : ''}`}
                 disabled={studio.busy || !studio.playback[track.id]}
-                aria-label={`${playing ? 'Пауза' : 'Играть'} плитку: ${track.name}`}
+                aria-label={t('{p0} плитку: {p1}', {
+                  p0: playing ? t('Пауза') : t('Играть'),
+                  p1: nameOf(track),
+                })}
                 onClick={() => trigger(track.id)}
               >
                 {playing ? <Pause size={26} /> : <Icon size={27} />}
-                <span>{track.name}</span>
-                <small>{index < 12 ? `F${index + 1}` : 'Нажмите для запуска'}</small>
+                <span>{nameOf(track)}</span>
+                <small>{index < 12 ? `F${index + 1}` : t('Нажмите для запуска')}</small>
               </button>
             );
           })}
         {!tracks.length && (
           <p className="soundboard-empty">
-            Добавленные дорожки появятся здесь. Запускайте их одним нажатием.
+            {t('Добавленные дорожки появятся здесь. Запускайте их одним нажатием.')}
           </p>
         )}
       </div>

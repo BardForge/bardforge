@@ -1,16 +1,17 @@
 interface ComponentState {
   id: string;
-  name: string;
-  description: string;
   version: string;
   bytes: number;
   received: number;
   status: 'available' | 'downloading' | 'installing' | 'installed' | 'paused' | 'error';
-  message?: string;
+  errorCode?: 'disk-space' | 'download';
 }
 interface DesktopStatus {
   version: string;
-  update: { status: string; message: string; percent?: number };
+  update: {
+    status: 'idle' | 'development' | 'checking' | 'current' | 'downloading' | 'ready' | 'error';
+    percent?: number;
+  };
   components: ComponentState[];
 }
 interface Window {

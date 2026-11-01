@@ -895,3 +895,25 @@ dialog.desktop-settings::backdrop {
   display: block;
   margin-top: 8px;
 }
+.language-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #c2c9d6;
+}
+.language-picker select {
+  color: #edf0f6;
+  background: #141b26;
+  border: 1px solid #3c4656;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font: inherit;
+  min-width: 104px;
+}
+.language-picker select:focus-visible {
+  outline: 2px solid #b692f5;
+  outline-offset: 2px;
+}
+.desktop-settings > .language-picker {
+  margin: 16px 0 0;
+}

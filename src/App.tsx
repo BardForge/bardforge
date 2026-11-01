@@ -1,3 +1,5 @@
+import { t, nameOf, useLanguage } from './i18n';
+import { LanguagePicker } from './components/LanguagePicker';
 import { useRef, useState } from 'react';
 import { AudioLines, Music2, Plus, Save, Search, Settings, SlidersHorizontal, X } from 'lucide-react';
 import { useStudio } from './useStudio';
@@ -8,8 +10,8 @@ import { Transport } from './components/Transport';
 import { Inspector } from './components/Inspector';
 import { Soundboard } from './components/Soundboard';
 import { DesktopSettings } from './components/DesktopSettings';
-
 export default function App() {
+  const { languageSaved } = useLanguage();
   const studio = useStudio();
   const picker = useRef<HTMLInputElement>(null);
   const targetGroup = useRef<string | undefined>(undefined);
@@ -45,39 +47,51 @@ export default function App() {
       >
         <header className="workspace-header">
           <div className="scene-title">
-            <label htmlFor="scene-name">Звуковая сцена</label>
+            <label htmlFor="scene-name">{t('Звуковая сцена')}</label>
             {scene ? (
               <EditableName
                 className="scene-name"
-                label="Название сцены"
-                value={scene.name}
+                label={t('Название сцены')}
+                value={nameOf(scene)}
                 disabled={studio.busy}
                 onCommit={(name) => studio.change((s) => ({ ...s, name }))}
               />
             ) : (
-              <h1>{studio.busy ? 'Открываем библиотеку…' : 'Библиотека недоступна'}</h1>
+              <h1>{studio.busy ? t('Открываем библиотеку…') : t('Библиотека недоступна')}</h1>
             )}
-            <p>Окружение, музыка и эффекты в одном месте</p>
+            <p>{t('Окружение, музыка и эффекты в одном месте')}</p>
           </div>
           <div className="header-actions">
-            <IconButton label="Приложение и компоненты" onClick={() => setSettings(true)}>
+            <LanguagePicker />
+            <IconButton label={t('Приложение и компоненты')} onClick={() => setSettings(true)}>
               <Settings size={20} />
             </IconButton>
             <button className="button" disabled={studio.busy || !scene} onClick={() => void studio.save()}>
-              <Save size={18} /> Сохранить
+              <Save size={18} />
+              {t('Сохранить')}
             </button>
             <button className="button primary" disabled={studio.busy || !scene} onClick={() => openImport()}>
-              <Plus size={20} /> Импорт аудио
+              <Plus size={20} />
+              {t('Импорт аудио')}
             </button>
-            <span className="save-state" role="status" aria-label="Сохранение сцены">
-              {studio.busy ? 'Подготовка…' : studio.saved ? 'Сохранено на компьютере' : 'Сохранение…'}
+            <span className="save-state" role="status" aria-label={t('Сохранение сцены')}>
+              {studio.busy
+                ? t('Подготовка…')
+                : studio.saved
+                  ? t('Сохранено на компьютере')
+                  : t('Сохранение…')}
             </span>
           </div>
         </header>
+        {!languageSaved && (
+          <p className="error-banner" role="alert">
+            {t('Не удалось сохранить выбор языка. После перезапуска выберите его снова.')}
+          </p>
+        )}
         {studio.error && (
           <div className="error-banner" role="alert">
             <span>{studio.error}</span>
-            <IconButton label="Закрыть сообщение" onClick={studio.clearError}>
+            <IconButton label={t('Закрыть сообщение')} onClick={studio.clearError}>
               <X size={18} />
             </IconButton>
           </div>
@@ -87,7 +101,8 @@ export default function App() {
             <div className="mixer">
               <div className="mixer-toolbar">
                 <h1>
-                  <SlidersHorizontal size={16} /> Микшер
+                  <SlidersHorizontal size={16} />
+                  {t('Микшер')}
                 </h1>
                 <button
                   className="tab-link"
@@ -97,25 +112,27 @@ export default function App() {
                       ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
                   }
                 >
-                  <AudioLines size={16} /> Звуковая панель
+                  <AudioLines size={16} />
+                  {t('Звуковая панель')}
                 </button>
                 <label className="search-field track-search">
                   <Search size={14} />
                   <input
-                    aria-label="Поиск дорожек"
-                    placeholder="Поиск дорожек…"
+                    aria-label={t('Поиск дорожек')}
+                    placeholder={t('Поиск дорожек…')}
                     value={trackQuery}
                     onChange={(e) => setTrackQuery(e.target.value)}
                   />
                 </label>
                 <button className="button subtle" disabled={studio.busy} onClick={() => studio.addGroup()}>
-                  <Plus size={17} /> Категория
+                  <Plus size={17} />
+                  {t('Категория')}
                 </button>
               </div>
               <div className="mixer-columns">
-                <span>Название</span>
-                <span>Воспроизведение</span>
-                <span>Громкость</span>
+                <span>{t('Название')}</span>
+                <span>{t('Воспроизведение')}</span>
+                <span>{t('Громкость')}</span>
               </div>
               <div className="group-list">
                 {scene.groups
@@ -137,18 +154,18 @@ export default function App() {
                 <Music2 size={22} />
                 <p>
                   {dragging
-                    ? 'Отпустите файлы для импорта'
-                    : 'Перетащите аудиофайлы сюда или нажмите «Импорт аудио»'}
+                    ? t('Отпустите файлы для импорта')
+                    : t('Перетащите аудиофайлы сюда или нажмите «Импорт аудио»')}
                 </p>
                 <small>
-                  WAV, MP3, OGG и другие форматы, поддерживаемые проигрывателем · до 100 МБ на файл
+                  {t('WAV, MP3, OGG и другие форматы, поддерживаемые проигрывателем · до 100 МБ на файл')}
                 </small>
                 {!scene.tracks.length && (
                   <>
                     <button className="button" disabled={studio.busy} onClick={() => void studio.loadDemo()}>
-                      Попробовать демосцену
+                      {t('Попробовать демосцену')}
                     </button>
-                    <small>Три синтезированных звука для знакомства с микшером</small>
+                    <small>{t('Три синтезированных звука для знакомства с микшером')}</small>
                   </>
                 )}
               </div>
@@ -182,11 +199,11 @@ export default function App() {
       {confirmDelete && (
         <div className="modal-backdrop">
           <section className="dialog" role="dialog" aria-modal="true" aria-labelledby="delete-title">
-            <h2 id="delete-title">Удалить сцену «{scene?.name}»?</h2>
-            <p>Настройки сцены будут удалены. Исходные файлы на диске останутся на месте.</p>
+            <h2 id="delete-title">{t('Удалить сцену «{name}»?', { name: nameOf(scene) })}</h2>
+            <p>{t('Настройки сцены будут удалены. Исходные файлы на диске останутся на месте.')}</p>
             <div className="dialog-actions">
               <button className="button" autoFocus onClick={() => setConfirmDelete(false)}>
-                Отмена
+                {t('Отмена')}
               </button>
               <button
                 className="button danger"
@@ -195,7 +212,7 @@ export default function App() {
                   void studio.deleteScene();
                 }}
               >
-                Удалить сцену
+                {t('Удалить сцену')}
               </button>
             </div>
           </section>

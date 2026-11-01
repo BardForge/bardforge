@@ -1,7 +1,7 @@
+import { t, nameOf } from '../i18n';
 import { useState } from 'react';
 import { Copy, FolderClosed, Plus, Search, Trash2, TreeDeciduous } from 'lucide-react';
 import type { Studio } from '../useStudio';
-
 export function Sidebar({ studio, onDelete }: { studio: Studio; onDelete: () => void }) {
   const [query, setQuery] = useState('');
   return (
@@ -14,19 +14,19 @@ export function Sidebar({ studio, onDelete }: { studio: Studio; onDelete: () => 
           BardForge<span>Studio</span>
         </div>
       </div>
-      <div className="section-label">Сцены</div>
+      <div className="section-label">{t('Сцены')}</div>
       <label className="search-field">
         <Search size={16} />
         <input
-          placeholder="Поиск сцен…"
-          aria-label="Поиск сцен"
+          placeholder={t('Поиск сцен…')}
+          aria-label={t('Поиск сцен')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
       </label>
-      <nav aria-label="Сцены" className="scene-list">
+      <nav aria-label={t('Сцены')} className="scene-list">
         {studio.scenes
-          .filter((s) => s.name.toLocaleLowerCase().includes(query.toLocaleLowerCase()))
+          .filter((s) => nameOf(s).toLocaleLowerCase().includes(query.toLocaleLowerCase()))
           .map((scene) => (
             <button
               key={scene.id}
@@ -37,33 +37,37 @@ export function Sidebar({ studio, onDelete }: { studio: Studio; onDelete: () => 
             >
               <span className="scene-thumb" />
               <span className="scene-item-text">
-                <strong>{scene.name}</strong>
-                <span>Дорожек: {scene.tracks.length}</span>
+                <strong>{nameOf(scene)}</strong>
+                <span>{t('Дорожек: {count}', { count: scene.tracks.length })}</span>
               </span>
             </button>
           ))}
       </nav>
       <button className="button new-scene" disabled={studio.busy} onClick={() => void studio.newScene()}>
-        <Plus size={19} /> Новая сцена
+        <Plus size={19} />
+        {t('Новая сцена')}
       </button>
       {studio.scene && (
         <div className="scene-actions">
           <button
             disabled={studio.busy}
-            title="Скопировать сцену"
+            title={t('Скопировать сцену')}
             onClick={() => void studio.duplicateScene()}
           >
-            <Copy size={15} /> Копия
+            <Copy size={15} />
+            {t('Копия')}
           </button>
-          <button disabled={studio.busy} title="Удалить сцену" onClick={onDelete}>
-            <Trash2 size={15} /> Удалить
+          <button disabled={studio.busy} title={t('Удалить сцену')} onClick={onDelete}>
+            <Trash2 size={15} />
+            {t('Удалить')}
           </button>
         </div>
       )}
       <div className="library-note">
         <FolderClosed size={20} />
         <div>
-          Локальная библиотека<small>Данные на этом компьютере</small>
+          {t('Локальная библиотека')}
+          <small>{t('Данные на этом компьютере')}</small>
         </div>
       </div>
     </aside>

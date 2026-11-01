@@ -38,7 +38,7 @@ test('a transient autosave failure does not poison scene operations after duplic
   });
   await page.getByLabel('Название сцены').fill('Recovered scene');
   await page.getByLabel('Название сцены').press('Enter');
-  await expect(page.getByRole('alert')).toContainText('Temporary storage failure');
+  await expect(page.getByRole('alert')).toContainText('Недостаточно места для сохранения');
   await page.getByRole('button', { name: 'Копия', exact: true }).click();
   await expect(page.getByLabel('Название сцены')).toHaveValue('Recovered scene — копия');
   await page.getByRole('button', { name: 'Новая сцена', exact: true }).click();

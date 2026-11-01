@@ -1,6 +1,9 @@
+import { nameKeys, type NameKey } from '../messages';
+
 export interface Group {
   id: string;
   name: string;
+  nameKey?: NameKey;
   parentId: string | null;
   gain: number;
   muted: boolean;
@@ -10,6 +13,7 @@ export interface Track {
   id: string;
   assetId: string;
   name: string;
+  nameKey?: NameKey;
   groupId: string;
   gain: number;
   loop: boolean;
@@ -21,6 +25,7 @@ export interface Scene {
   version: 1;
   id: string;
   name: string;
+  nameKey?: NameKey;
   groups: Group[];
   tracks: Track[];
   masterGain: number;
@@ -33,17 +38,19 @@ export interface AudioAsset {
   duration: number;
 }
 
-export function createScene(name: string): Scene {
+export function createScene(name: string, nameKey?: NameKey): Scene {
   return {
     version: 1,
     id: crypto.randomUUID(),
     name,
+    nameKey,
     masterGain: 0.8,
     updatedAt: Date.now(),
     tracks: [],
-    groups: ['Окружение', 'Музыка', 'Эффекты'].map((name) => ({
+    groups: (['Окружение', 'Музыка', 'Эффекты'] as const).map((name) => ({
       id: crypto.randomUUID(),
       name,
+      nameKey: name,
       parentId: null,
       gain: 1,
       muted: false,
@@ -81,10 +88,12 @@ export function validateScene(value: unknown): Scene {
   const text = (v: unknown): v is string => typeof v === 'string' && v.trim().length > 0 && v.length <= 256;
   const gain = (v: unknown) => typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 1;
   const bool = (v: unknown) => typeof v === 'boolean';
+  const validNameKey = (v: unknown) => v === undefined || nameKeys.includes(v as NameKey);
   if (
     s.version !== 1 ||
     !text(s.id) ||
     !text(s.name) ||
+    !validNameKey(s.nameKey) ||
     !gain(s.masterGain) ||
     !Number.isFinite(s.updatedAt) ||
     !Array.isArray(s.groups) ||
@@ -102,6 +111,7 @@ export function validateScene(value: unknown): Scene {
       !g ||
       !text(g.id) ||
       !text(g.name) ||
+      !validNameKey(g.nameKey) ||
       !gain(g.gain) ||
       !bool(g.muted) ||
       !bool(g.solo) ||
@@ -122,6 +132,7 @@ export function validateScene(value: unknown): Scene {
       !text(t.id) ||
       !text(t.assetId) ||
       !text(t.name) ||
+      !validNameKey(t.nameKey) ||
       !groups.has(t.groupId) ||
       !gain(t.gain) ||
       !bool(t.loop) ||

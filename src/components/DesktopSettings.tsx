@@ -1,10 +1,12 @@
+import { t, numberText, errorText } from '../i18n';
+import type { MessageKey } from '../messages';
+import { LanguagePicker } from './LanguagePicker';
 import { useEffect, useRef, useState } from 'react';
 import { Download, X } from 'lucide-react';
 import { IconButton } from './Controls';
-
 export function DesktopSettings({ onClose, canRestart }: { onClose: () => void; canRestart: boolean }) {
   const [status, setStatus] = useState<DesktopStatus>();
-  const [error, setError] = useState('');
+  const [error, setError] = useState<MessageKey | ''>('');
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     dialog.current?.showModal();
@@ -27,32 +29,43 @@ export function DesktopSettings({ onClose, canRestart }: { onClose: () => void; 
   }, []);
   const action = (promise?: Promise<void>) =>
     void promise?.catch(() => setError('Не удалось выполнить действие. Попробуйте ещё раз.'));
+  const updateMessages: Record<DesktopStatus['update']['status'], MessageKey> = {
+    idle: 'Проверка обновлений ещё не выполнялась.',
+    development: 'Тестовая сборка. Обновления включатся в стабильном выпуске.',
+    checking: 'Проверяем обновления…',
+    current: 'Установлена последняя версия.',
+    downloading: 'Обновление загружается в фоне…',
+    ready: 'Обновление готово. Установите его после завершения сессии.',
+    error: 'Не удалось получить обновление. Проверьте подключение и повторите позже.',
+  };
   return (
     <dialog ref={dialog} className="dialog desktop-settings" onCancel={onClose}>
       <header>
-        <h2>Приложение и компоненты</h2>
-        <IconButton label="Закрыть настройки" onClick={onClose}>
+        <h2>{t('Приложение и компоненты')}</h2>
+        <IconButton label={t('Закрыть настройки')} onClick={onClose}>
           <X size={20} />
         </IconButton>
       </header>
+      <LanguagePicker />
       <p>
-        Микшер работает сразу после установки. Дополнительные компоненты хранятся отдельно от системных
-        программ.
+        {t(
+          'Микшер работает сразу после установки. Дополнительные компоненты хранятся отдельно от системных программ.',
+        )}
       </p>
-      {error && <p role="alert">{error}</p>}
+      {error && <p role="alert">{errorText(error)}</p>}
       {!window.bardforge ? (
-        <p>Управление компонентами доступно в приложении Windows.</p>
+        <p>{t('Управление компонентами доступно в приложении Windows.')}</p>
       ) : !status ? (
-        <p>Загрузка…</p>
+        <p>{t('Загрузка…')}</p>
       ) : (
         <>
           <section className="component-card">
             <h3>
               BardForge Studio <small>{status.version}</small>
             </h3>
-            <p role="status">{status.update.message}</p>
+            <p role="status">{t(updateMessages[status.update.status])}</p>
             {status.update.percent !== undefined && (
-              <progress max={100} value={status.update.percent} aria-label="Загрузка обновления" />
+              <progress max={100} value={status.update.percent} aria-label={t('Загрузка обновления')} />
             )}
             {status.update.status === 'ready' ? (
               <>
@@ -61,9 +74,11 @@ export function DesktopSettings({ onClose, canRestart }: { onClose: () => void; 
                   disabled={!canRestart}
                   onClick={() => action(window.bardforge?.installUpdate())}
                 >
-                  Установить и перезапустить
+                  {t('Установить и перезапустить')}
                 </button>
-                {!canRestart && <small>Остановите воспроизведение и дождитесь сохранения сцены.</small>}
+                {!canRestart && (
+                  <small>{t('Остановите воспроизведение и дождитесь сохранения сцены.')}</small>
+                )}
               </>
             ) : (
               <button
@@ -71,30 +86,48 @@ export function DesktopSettings({ onClose, canRestart }: { onClose: () => void; 
                 disabled={['development', 'checking', 'downloading'].includes(status.update.status)}
                 onClick={() => action(window.bardforge?.checkUpdates())}
               >
-                Проверить обновления
+                {t('Проверить обновления')}
               </button>
             )}
           </section>
           {status.components.map((component) => (
             <section className="component-card" key={component.id}>
               <h3>
-                {component.name} <small>{(component.bytes / 1024 / 1024).toFixed(1)} МБ</small>
+                {t('Python для модулей')}{' '}
+                <small>
+                  {numberText(component.bytes / 1024 / 1024, 1)} {t('МБ')}
+                </small>
               </h3>
-              <p>{component.description}</p>
+              <p>
+                {t(
+                  'Изолированный Python {version}. Микшер работает без него; среда предназначена для дополнительных модулей.',
+                  { version: component.version },
+                )}
+              </p>
               <p role="status">
                 {component.status === 'installed'
-                  ? 'Установлен и проверен'
+                  ? t('Установлен и проверен')
                   : component.status === 'installing'
-                    ? 'Распаковка и проверка…'
+                    ? t('Распаковка и проверка…')
                     : component.status === 'downloading'
-                      ? `Загрузка: ${Math.round((component.received / component.bytes) * 100)}%`
-                      : (component.message ?? 'Можно загрузить заранее')}
+                      ? t('Загрузка: {percent}%', {
+                          percent: numberText((component.received / component.bytes) * 100),
+                        })
+                      : component.status === 'paused'
+                        ? t('Загрузка приостановлена. Можно продолжить.')
+                        : component.status === 'error'
+                          ? t(
+                              component.errorCode === 'disk-space'
+                                ? 'Недостаточно места на диске.'
+                                : 'Не удалось подготовить компонент. Проверьте сеть и место на диске, затем повторите.',
+                            )
+                          : t('Можно загрузить заранее')}
               </p>
               {component.status === 'downloading' && (
                 <progress
                   max={component.bytes}
                   value={component.received}
-                  aria-label={`Загрузка: ${component.name}`}
+                  aria-label={t('Загрузка: {name}', { name: t('Python для модулей') })}
                 />
               )}
               {['downloading', 'installing'].includes(component.status) ? (
@@ -102,7 +135,7 @@ export function DesktopSettings({ onClose, canRestart }: { onClose: () => void; 
                   className="button"
                   onClick={() => action(window.bardforge?.cancelComponent(component.id))}
                 >
-                  Приостановить
+                  {t('Приостановить')}
                 </button>
               ) : (
                 component.status !== 'installed' && (
@@ -112,18 +145,19 @@ export function DesktopSettings({ onClose, canRestart }: { onClose: () => void; 
                   >
                     <Download size={16} />{' '}
                     {component.status === 'paused'
-                      ? 'Продолжить загрузку'
+                      ? t('Продолжить загрузку')
                       : component.status === 'error'
-                        ? 'Повторить'
-                        : 'Подготовить компонент'}
+                        ? t('Повторить')
+                        : t('Подготовить компонент')}
                   </button>
                 )
               )}
             </section>
           ))}
           <small>
-            AI-модели появятся вместе с соответствующими функциями. Сейчас генерация звука и каталог
-            AI-моделей ещё не реализованы.
+            {t(
+              'AI-модели появятся вместе с соответствующими функциями. Сейчас генерация звука и каталог AI-моделей ещё не реализованы.',
+            )}
           </small>
         </>
       )}

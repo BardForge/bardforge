@@ -3,6 +3,7 @@ import { AudioEngine, inspectAudio } from './audio/engine';
 import { demoWav } from './audio/demo';
 import { createScene, type Group, type Scene, type Track } from './domain/scene';
 import { Repository } from './storage/repository';
+import { errorText, nameOf, t, UserError } from './i18n';
 
 export function useStudio() {
   const [repository] = useState(() => new Repository());
@@ -12,14 +13,14 @@ export function useStudio() {
   const current = useRef<Scene | null>(null);
   const [busy, setBusy] = useState(true);
   const locked = useRef(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<unknown>('');
   const [saved, setSaved] = useState(true);
   const [playback, setPlayback] = useState(engine.snapshot());
   const [level, setLevel] = useState(0);
   const queue = useRef(Promise.resolve());
   const pending = useRef(0);
 
-  const report = (value: unknown) => setError(value instanceof Error ? value.message : String(value));
+  const report = (value: unknown) => setError(value);
   const assign = (value: Scene) => {
     current.current = value;
     setScene(value);
@@ -47,6 +48,7 @@ export function useStudio() {
   const change = (edit: (scene: Scene) => Scene) => {
     if (!current.current || locked.current) return;
     const next = { ...edit(current.current), updatedAt: Date.now() };
+    if (next.name !== current.current.name) next.nameKey = undefined;
     assign(next);
     void persist(next).catch(() => {});
   };
@@ -54,17 +56,22 @@ export function useStudio() {
     engine.clear();
     assign(next);
     setSaved(true);
-    const missing: string[] = [];
+    const missing: Track[] = [];
     for (const track of next.tracks) {
       const asset = await repository.getAsset(track.assetId);
       if (asset) await engine.loadTrack(track.id, asset.blob);
-      else missing.push(track.name);
+      else missing.push(track);
     }
     engine.sync(next);
     setPlayback(engine.snapshot());
     if (missing.length)
       setError(
-        `Не найдены аудиофайлы: ${missing.join(', ')}. Удалите эти дорожки и импортируйте файлы повторно.`,
+        new UserError(
+          'Не найдены аудиофайлы: {files}. Удалите эти дорожки и импортируйте файлы повторно.',
+          () => ({
+            files: missing.map(nameOf).join(', '),
+          }),
+        ),
       );
   };
   const run = async (action: () => Promise<void>) => {
@@ -89,7 +96,7 @@ export function useStudio() {
       try {
         let items = await repository.listScenes();
         if (!items.length) {
-          const fresh = createScene('Новая сцена');
+          const fresh = createScene('Новая сцена', 'Новая сцена');
           await repository.saveScene(fresh);
           items = [fresh];
         }
@@ -138,7 +145,7 @@ export function useStudio() {
     run(async () => {
       if (!saved && current.current) await persist(current.current);
       await queue.current;
-      const next = createScene('Новая сцена');
+      const next = createScene('Новая сцена', 'Новая сцена');
       await repository.saveScene(next);
       await activate(next);
     });
@@ -148,7 +155,8 @@ export function useStudio() {
       const next = {
         ...structuredClone(current.current),
         id: crypto.randomUUID(),
-        name: `${current.current.name.slice(0, 230)} — копия`,
+        name: t('{name} — копия', { name: nameOf(current.current).slice(0, 230) }),
+        nameKey: undefined,
         updatedAt: Date.now(),
       };
       await repository.saveScene(next);
@@ -161,7 +169,7 @@ export function useStudio() {
       const id = current.current.id;
       const remaining = scenes.filter((s) => s.id !== id);
       // Create the replacement first so deleting the last scene cannot leave an unusable library.
-      const next = remaining[0] ?? createScene('Новая сцена');
+      const next = remaining[0] ?? createScene('Новая сцена', 'Новая сцена');
       if (!remaining.length) await repository.saveScene(next);
       await repository.deleteScene(id);
       setScenes(remaining.length ? remaining : [next]);
@@ -172,7 +180,7 @@ export function useStudio() {
       if (!current.current) return;
       const target = current.current;
       const tracks: Track[] = [];
-      const failures: string[] = [];
+      const failures: { file: string; error: unknown }[] = [];
       for (const file of files) {
         try {
           if (target.tracks.length + tracks.length >= 128)
@@ -184,6 +192,7 @@ export function useStudio() {
             id: crypto.randomUUID(),
             assetId,
             name: file.name.replace(/\.[^.]+$/, '').slice(0, 256) || 'Аудио',
+            nameKey: file.name.replace(/\.[^.]+$/, '') ? undefined : 'Аудио',
             groupId: groupId ?? target.groups[0].id,
             gain: 0.7,
             loop: true,
@@ -194,7 +203,7 @@ export function useStudio() {
           tracks.push(track);
           await engine.loadTrack(track.id, file);
         } catch (e) {
-          failures.push(`${file.name}: ${e instanceof Error ? e.message : String(e)}`);
+          failures.push({ file: file.name, error: e });
         }
       }
       if (tracks.length) {
@@ -202,13 +211,13 @@ export function useStudio() {
         assign(next);
         await persist(next);
       }
-      if (failures.length) setError(failures.join('\n'));
+      if (failures.length) setError(failures);
     });
   const loadDemo = () =>
     run(async () => {
       if (!saved && current.current) await persist(current.current);
       await queue.current;
-      const next = createScene('Ночной лес');
+      const next = createScene('Ночной лес', 'Ночной лес');
       const entries = [
         ['rain', 'Лесной дождь'],
         ['drone', 'Далёкий гул'],
@@ -223,6 +232,7 @@ export function useStudio() {
           id: crypto.randomUUID(),
           assetId: id,
           name,
+          nameKey: name,
           groupId: next.groups[index].id,
           gain: 0.7,
           loop: kind !== 'bell',
@@ -253,9 +263,19 @@ export function useStudio() {
     setPlayback(engine.snapshot());
   };
   const trackChange = (id: string, patch: Partial<Track>) =>
-    change((s) => ({ ...s, tracks: s.tracks.map((t) => (t.id === id ? { ...t, ...patch } : t)) }));
+    change((s) => ({
+      ...s,
+      tracks: s.tracks.map((t) =>
+        t.id === id ? { ...t, ...patch, ...(patch.name !== undefined ? { nameKey: undefined } : {}) } : t,
+      ),
+    }));
   const groupChange = (id: string, patch: Partial<Group>) =>
-    change((s) => ({ ...s, groups: s.groups.map((g) => (g.id === id ? { ...g, ...patch } : g)) }));
+    change((s) => ({
+      ...s,
+      groups: s.groups.map((g) =>
+        g.id === id ? { ...g, ...patch, ...(patch.name !== undefined ? { nameKey: undefined } : {}) } : g,
+      ),
+    }));
   const addGroup = (parentId: string | null = null) =>
     change((s) => {
       if (s.groups.length >= 64) {
@@ -269,6 +289,7 @@ export function useStudio() {
           {
             id: crypto.randomUUID(),
             name: parentId ? 'Подгруппа' : 'Новая группа',
+            nameKey: parentId ? 'Подгруппа' : 'Новая группа',
             parentId,
             gain: 1,
             muted: false,
@@ -281,7 +302,7 @@ export function useStudio() {
     scene,
     scenes,
     busy,
-    error,
+    error: errorText(error),
     saved,
     playback,
     level,

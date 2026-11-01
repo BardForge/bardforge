@@ -1,9 +1,6 @@
 function createUpdates(updater, enabled) {
   let status = {
     status: enabled ? 'idle' : 'development',
-    message: enabled
-      ? 'Проверка обновлений ещё не выполнялась.'
-      : 'Тестовая сборка. Обновления включатся в стабильном выпуске.',
   };
   let busy = false;
   updater.autoDownload = true;
@@ -14,24 +11,23 @@ function createUpdates(updater, enabled) {
   updater.disableDifferentialDownload = true;
   updater.logger = null;
   updater.on('checking-for-update', () => {
-    status = { status: 'checking', message: 'Проверяем обновления…' };
+    status = { status: 'checking' };
   });
   updater.on('update-not-available', () => {
-    status = { status: 'current', message: 'Установлена последняя версия.' };
+    status = { status: 'current' };
   });
   updater.on('update-available', () => {
-    status = { status: 'downloading', message: 'Обновление загружается в фоне…', percent: 0 };
+    status = { status: 'downloading', percent: 0 };
   });
   updater.on('download-progress', (progress) => {
-    status = { status: 'downloading', message: 'Обновление загружается в фоне…', percent: progress.percent };
+    status = { status: 'downloading', percent: progress.percent };
   });
   updater.on('update-downloaded', () => {
-    status = { status: 'ready', message: 'Обновление готово. Установите его после завершения сессии.' };
+    status = { status: 'ready' };
   });
   const failed = () => {
     status = {
       status: 'error',
-      message: 'Не удалось получить обновление. Проверьте подключение и повторите позже.',
     };
   };
   updater.on('error', failed);

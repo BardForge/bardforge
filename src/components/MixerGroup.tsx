@@ -1,9 +1,9 @@
+import { t, nameOf } from '../i18n';
 import { MoreHorizontal, Pause, Play, Plus, Volume2 } from 'lucide-react';
 import { ancestors, type Group } from '../domain/scene';
 import type { Studio } from '../useStudio';
 import { EditableName, IconButton, Volume } from './Controls';
 import { TrackRow } from './TrackRow';
-
 export function MixerGroup({
   group,
   studio,
@@ -30,18 +30,21 @@ export function MixerGroup({
   const playing = ids.some((id) => studio.playback[id]?.playing);
   const canDelete = !tracks.length && !children.length && scene.groups.length > 1;
   return (
-    <section className={`mixer-group color-${index % 3}`} aria-label={`Группа ${group.name}`}>
+    <section
+      className={`mixer-group color-${index % 3}`}
+      aria-label={t('Группа {p0}', { p0: nameOf(group) })}
+    >
       <div className="group-heading">
         <span className="group-marker" />
         <EditableName
-          label={`Название группы: ${group.name}`}
-          value={group.name}
+          label={t('Название группы: {p0}', { p0: nameOf(group) })}
+          value={nameOf(group)}
           disabled={studio.busy}
           onCommit={(name) => studio.groupChange(group.id, { name })}
         />
         <div className="group-controls">
           <IconButton
-            label={`${playing ? 'Пауза группы' : 'Играть группу'}: ${group.name}`}
+            label={`${playing ? t('Пауза группы') : t('Играть группу')}: ${nameOf(group)}`}
             disabled={studio.busy || !ids.length}
             onClick={() => (playing ? studio.pause(ids) : void studio.play(ids))}
           >
@@ -49,13 +52,13 @@ export function MixerGroup({
           </IconButton>
           <Volume2 size={17} className="volume-symbol" />
           <Volume
-            label={`Громкость группы: ${group.name}`}
+            label={t('Громкость группы: {p0}', { p0: nameOf(group) })}
             value={group.gain}
             disabled={studio.busy}
             onChange={(gain) => studio.groupChange(group.id, { gain })}
           />
           <IconButton
-            label={`Без звука: ${group.name}`}
+            label={t('Без звука: {p0}', { p0: nameOf(group) })}
             active={group.muted}
             disabled={studio.busy}
             onClick={() => studio.groupChange(group.id, { muted: !group.muted })}
@@ -63,7 +66,7 @@ export function MixerGroup({
             M
           </IconButton>
           <IconButton
-            label={`Соло: ${group.name}`}
+            label={t('Соло: {p0}', { p0: nameOf(group) })}
             active={group.solo}
             disabled={studio.busy}
             onClick={() => studio.groupChange(group.id, { solo: !group.solo })}
@@ -71,29 +74,30 @@ export function MixerGroup({
             S
           </IconButton>
           <details className="menu">
-            <summary aria-label={`Настройки группы: ${group.name}`}>
+            <summary aria-label={t('Настройки группы: {p0}', { p0: nameOf(group) })}>
               <MoreHorizontal size={18} />
             </summary>
             <div className="menu-content">
               <button disabled={studio.busy} onClick={() => onImport(group.id)}>
-                <Plus size={15} /> Добавить аудио
+                <Plus size={15} />
+                {t('Добавить аудио')}
               </button>
               <button disabled={studio.busy} onClick={() => studio.addGroup(group.id)}>
-                Добавить подгруппу
+                {t('Добавить подгруппу')}
               </button>
               <button
                 disabled={studio.busy || !canDelete}
-                title={!canDelete ? 'Сначала удалите дорожки и подгруппы' : undefined}
+                title={!canDelete ? t('Сначала удалите дорожки и подгруппы') : undefined}
                 onClick={() =>
                   studio.change((s) => ({ ...s, groups: s.groups.filter((g) => g.id !== group.id) }))
                 }
               >
-                Удалить пустую группу
+                {t('Удалить пустую группу')}
               </button>
             </div>
           </details>
           <IconButton
-            label={`Добавить подкатегорию: ${group.name}`}
+            label={t('Добавить подкатегорию: {p0}', { p0: nameOf(group) })}
             disabled={studio.busy}
             onClick={() => studio.addGroup(group.id)}
           >
@@ -102,7 +106,7 @@ export function MixerGroup({
         </div>
       </div>
       {tracks
-        .filter((t) => t.name.toLocaleLowerCase().includes(query.toLocaleLowerCase()))
+        .filter((track) => nameOf(track).toLocaleLowerCase().includes(query.toLocaleLowerCase()))
         .map((track) => (
           <TrackRow
             key={track.id}
@@ -114,7 +118,8 @@ export function MixerGroup({
         ))}
       {!tracks.length && !children.length && (
         <button className="empty-group" disabled={studio.busy} onClick={() => onImport(group.id)}>
-          <Plus size={15} /> Добавить аудио в группу
+          <Plus size={15} />
+          {t('Добавить аудио в группу')}
         </button>
       )}
       {!!children.length && (
