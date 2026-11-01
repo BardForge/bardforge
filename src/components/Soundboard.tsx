@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { AudioLines, Bell, CloudRain, Music2, Pause, Plus, Sparkles } from 'lucide-react';
 import type { Studio } from '../useStudio';
+import { ancestors } from '../domain/scene';
 
 const icons = [CloudRain, Music2, Bell, Sparkles, AudioLines];
 export function Soundboard({ studio, onImport }: { studio: Studio; onImport: () => void }) {
-  const [filter, setFilter] = useState('all');
+  const [selectedFilter, setFilter] = useState('all');
   const tracks = studio.scene?.tracks ?? [];
   const groups = studio.scene?.groups ?? [];
+  const filter = groups.some((g) => g.id === selectedFilter && g.parentId === null) ? selectedFilter : 'all';
   const trigger = (id: string) => {
     if (studio.playback[id]?.playing) studio.pause([id]);
     else void studio.play([id]);
@@ -58,7 +60,7 @@ export function Soundboard({ studio, onImport }: { studio: Studio; onImport: () 
       </div>
       <div className="soundboard-tiles">
         {tracks
-          .filter((t) => filter === 'all' || t.groupId === filter)
+          .filter((t) => filter === 'all' || ancestors(studio.scene!, t.groupId).some((g) => g.id === filter))
           .map((track) => {
             const index = tracks.indexOf(track);
             const Icon = icons[index % icons.length];

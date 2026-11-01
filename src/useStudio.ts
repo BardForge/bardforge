@@ -34,7 +34,7 @@ export function useStudio() {
     pending.current++;
     setSaved(false);
     const task = queue.current.catch(() => {}).then(() => repository.saveScene(value));
-    queue.current = task;
+    queue.current = task.catch(() => {});
     void task
       .then(() => {
         if (current.current === value) setSaved(true);

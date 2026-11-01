@@ -5,6 +5,7 @@ type Voice = {
   url: string;
   source: MediaElementAudioSourceNode;
   gain: GainNode;
+  request: number;
   error?: string;
 };
 export interface Playback {
@@ -86,7 +87,7 @@ export class AudioEngine {
     const gain = context.createGain();
     gain.gain.value = 0;
     source.connect(gain).connect(this.master!);
-    const voice: Voice = { audio, url, source, gain };
+    const voice: Voice = { audio, url, source, gain, request: 0 };
     audio.onerror = () => {
       voice.error = 'Не удалось воспроизвести файл.';
     };
@@ -110,29 +111,47 @@ export class AudioEngine {
 
   async play(ids: string[]): Promise<void> {
     const generation = this.generation;
-    await this.ensureContext().resume();
-    if (generation !== this.generation) return;
     const voices = ids.map((id) => this.voices.get(id));
     if (voices.some((v) => !v)) throw new Error('Аудиофайл не загружен. Откройте сцену повторно.');
+    const requests = voices.map((voice) => ({ voice: voice!, request: ++voice!.request }));
+    await this.ensureContext().resume();
+    if (generation !== this.generation) return;
     try {
       await Promise.all(
-        voices.map(async (voice) => {
-          if (voice!.audio.ended) voice!.audio.currentTime = 0;
-          await voice!.audio.play();
+        requests.map(async ({ voice, request }) => {
+          if (voice.request !== request) return;
+          if (voice.audio.ended) voice.audio.currentTime = 0;
+          try {
+            await voice.audio.play();
+          } catch (error) {
+            if (voice.request === request) throw error;
+          }
         }),
       );
     } catch (error) {
-      this.pause(ids);
+      for (const { voice, request } of requests) {
+        if (voice.request === request) {
+          voice.request++;
+          voice.audio.pause();
+        }
+      }
       throw error;
     }
   }
   pause(ids = [...this.voices.keys()]): void {
-    ids.forEach((id) => this.voices.get(id)?.audio.pause());
+    ids.forEach((id) => {
+      const voice = this.voices.get(id);
+      if (voice) {
+        voice.request++;
+        voice.audio.pause();
+      }
+    });
   }
   stop(ids = [...this.voices.keys()]): void {
     ids.forEach((id) => {
       const v = this.voices.get(id);
       if (v) {
+        v.request++;
         v.audio.pause();
         v.audio.currentTime = 0;
       }
@@ -146,6 +165,7 @@ export class AudioEngine {
   remove(id: string): void {
     const v = this.voices.get(id);
     if (!v) return;
+    v.request++;
     v.audio.pause();
     v.audio.onerror = null;
     v.audio.removeAttribute('src');
