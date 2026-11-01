@@ -1,0 +1,43 @@
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# JavaScript
+node_modules/
+dist/
+build/
+coverage/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Rust and native build output
+target/
+
+# Runtime data and logs
+*.log
+*.sqlite
+*.sqlite3
+*.db
+models/
+tmp/
+
+# Editor and OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Internal specifications and agent planning: keep local
+BardForge_Studio_Concept_TZ*.pdf
+superpowers/
+.superpowers/
+/private/
+/internal/
