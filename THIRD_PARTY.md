@@ -13,3 +13,5 @@
 The optional Windows x64 Python embeddable distribution is downloaded from python.org only when requested. It is not bundled in the repository or installer. Python is covered by the PSF license and bundled third-party notices; see https://docs.python.org/3/license.html. The pinned catalog records version, byte count and SHA-256. Its extracted license is retained with the runtime. No AI model weights are distributed.
 
 Desktop update delivery uses electron-updater (MIT); archive reading uses yauzl (MIT). Their license files remain in the packaged dependencies.
+
+The separately hosted signaling relay uses ws (MIT). It is installed from its own lockfile; the relay's node_modules and credentials are not included in the desktop installer or public repository. Browser transport uses built-in WebRTC APIs.

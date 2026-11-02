@@ -27,7 +27,18 @@ try {
   });
   assert.deepEqual(settings, { sandbox: true, contextIsolation: true, nodeIntegration: false });
   await page.getByRole('button', { name: 'Стоп', exact: true }).click();
+  const archive = path.join(profile, 'desktop-roundtrip.bardforge');
+  // Replace only the native picker in this isolated test; the real IPC/file writer is exercised.
+  await desktop.evaluate(({ dialog }, filePath) => {
+    dialog.showSaveDialog = async () => ({ canceled: false, filePath });
+  }, archive);
+  await page.getByRole('button', { name: 'Экспорт сцены', exact: true }).click();
+  await page.getByText('Сцена экспортирована.', { exact: true }).waitFor();
+  await page.locator('input[accept=".bardforge"]').setInputFiles(archive);
+  await page.getByText('Сцена импортирована как новая.', { exact: true }).waitFor();
+  assert.equal(await page.getByTestId('track-row').count(), 3);
   await page.getByRole('button', { name: 'Приложение и компоненты', exact: true }).click();
+  await page.getByRole('radio', { name: 'Светлая', exact: true }).check();
   await page.getByText('Тестовая сборка. Обновления включатся в стабильном выпуске.').waitFor();
   if (process.env.BARDFORGE_TEST_DOWNLOADS === '1') {
     await page.getByRole('button', { name: 'Подготовить компонент' }).click();
@@ -55,6 +66,7 @@ try {
   assert.equal(await page.getByLabel('Scene name').inputValue(), 'Desktop persistence check');
   assert.equal(await page.getByLabel('Язык / Language').inputValue(), 'en');
   assert.equal(await page.locator('html').getAttribute('lang'), 'en');
+  assert.equal(await page.locator('html').getAttribute('data-theme'), 'light');
   await page.getByLabel('Язык / Language').selectOption('ru');
   assert.equal(await page.getByTestId('track-row').count(), 3);
   if (process.env.BARDFORGE_TEST_DOWNLOADS === '1') {

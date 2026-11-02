@@ -1,0 +1,90 @@
+import { expect, test } from '@playwright/test';
+
+test('light compact workspace keeps live audio and every mixer control, and survives reload', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Попробовать демосцену' }).click();
+  await page.getByLabel('Название сцены').fill('Мой лес / My forest');
+  await page.getByLabel('Название сцены').press('Enter');
+  await page.getByRole('button', { name: 'Играть сцену', exact: true }).click();
+  const signal = page.getByLabel('Уровень сигнала');
+  await expect.poll(async () => Number(await signal.getAttribute('data-level'))).toBeGreaterThan(0.005);
+  await page.getByRole('button', { name: 'Приложение и компоненты', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('radio', { name: 'Светлая', exact: true }).check();
+  await dialog.getByRole('radio', { name: 'Бирюзовый', exact: true }).check();
+  await dialog.getByRole('checkbox', { name: 'Компактный микшер', exact: true }).check();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await expect(page.locator('html')).toHaveAttribute('data-accent', 'teal');
+  await expect(page.locator('html')).toHaveAttribute('data-density', 'compact');
+  await expect.poll(async () => Number(await signal.getAttribute('data-level'))).toBeGreaterThan(0.005);
+  await dialog.getByLabel('Язык / Language').selectOption('en');
+  await expect(dialog.getByRole('radio', { name: 'Light', exact: true })).toBeChecked();
+  await expect(dialog.getByRole('checkbox', { name: 'Compact mixer', exact: true })).toBeChecked();
+  await page.screenshot({ path: 'tmp/workspace-light-settings.png', fullPage: true });
+  await dialog.getByRole('button', { name: 'Close settings', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Pause scene', exact: true })).toBeVisible();
+  const track = page.getByTestId('track-row').first();
+  await expect(track.getByRole('button', { name: 'Pause: Forest rain', exact: true })).toBeVisible();
+  await expect(track.getByRole('slider', { name: 'Position: Forest rain', exact: true })).toBeVisible();
+  await expect(track.getByRole('slider', { name: /^Track volume: Forest rain/ })).toBeVisible();
+  await expect(track.getByRole('button', { name: 'Loop: Forest rain', exact: true })).toBeVisible();
+  await expect(track.getByLabel('Track settings: Forest rain', { exact: true })).toBeVisible();
+  await expect(page.getByLabel('Scene name')).toHaveValue('Мой лес / My forest');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: 'tmp/workspace-light-compact-mixer.png', fullPage: true });
+  await page.getByRole('button', { name: 'Stop', exact: true }).click();
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByRole('status', { name: 'Scene saving' })).toContainText('Saved');
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await expect(page.locator('html')).toHaveAttribute('data-accent', 'teal');
+  await expect(page.locator('html')).toHaveAttribute('data-density', 'compact');
+  await expect(page.getByLabel('Scene name')).toHaveValue('Мой лес / My forest');
+  await expect(page.getByTestId('track-row')).toHaveCount(3);
+  await page.getByRole('button', { name: 'Application and components', exact: true }).click();
+  await expect(dialog.getByRole('radio', { name: 'Light', exact: true })).toBeChecked();
+  await expect(dialog.getByRole('radio', { name: 'Teal', exact: true })).toBeChecked();
+  await expect(dialog.getByRole('checkbox', { name: 'Compact mixer', exact: true })).toBeChecked();
+  await dialog.getByRole('button', { name: 'Close settings', exact: true }).click();
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await expect(page.getByRole('button', { name: 'Export scene', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Import scene', exact: true })).toBeVisible();
+  await expect(track.getByRole('slider', { name: /^Track volume: Forest rain/ })).toBeVisible();
+  await page.screenshot({ path: 'tmp/workspace-light-compact-narrow.png', fullPage: true });
+  const volume = track.getByRole('slider', { name: /^Track volume: Forest rain/ });
+  await volume.scrollIntoViewIfNeeded();
+  await volume.focus();
+  await volume.press('ArrowLeft');
+  await expect(volume).toHaveValue('69');
+  await page.screenshot({ path: 'tmp/workspace-light-compact-narrow-mixer.png' });
+});
+
+test('system appearance follows OS changes with settings closed and keeps the selected preference after reload', async ({
+  page,
+}) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Приложение и компоненты', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('radio', { name: 'Как в системе', exact: true }).check();
+  await dialog.getByRole('radio', { name: 'Фиолетовый', exact: true }).check();
+  await dialog.getByRole('button', { name: 'Закрыть настройки', exact: true }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.locator('html')).toHaveAttribute('data-accent', 'violet');
+  await page.emulateMedia({ colorScheme: 'light' });
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await page.getByRole('button', { name: 'Приложение и компоненты', exact: true }).click();
+  await expect(dialog.getByRole('radio', { name: 'Как в системе', exact: true })).toBeChecked();
+  await dialog.getByRole('radio', { name: 'Тёмная', exact: true }).check();
+  await dialog.getByRole('button', { name: 'Закрыть настройки', exact: true }).click();
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.emulateMedia({ colorScheme: 'light' });
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+});

@@ -917,3 +917,10 @@ dialog.desktop-settings::backdrop {
 .desktop-settings > .language-picker {
   margin: 16px 0 0;
 }
+.scene-actions {
+  flex-wrap: wrap;
+}
+.archive-notice {
+  font-size: 12px;
+  padding: 8px;
+}

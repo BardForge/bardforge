@@ -30,7 +30,7 @@ jobs:
           - name: build
             command: npm run build
           - name: dependency-audit
-            command: npm audit --audit-level=moderate && npm run check:licenses
+            command: npm audit --audit-level=moderate && npm audit --prefix services/relay --audit-level=moderate && npm run check:licenses
           - name: secret-scan
             command: npm run check:public -- --secrets-only
           - name: repository-hygiene
@@ -42,6 +42,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - run: npm ci --prefix services/relay
       - run: ${{ matrix.command }}
 
   integration:
@@ -54,8 +55,10 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - run: npm ci --prefix services/relay
       - run: npx playwright install chromium
       - run: npm run test:e2e
+      - run: node tests/transport.browser.mjs
       - run: npm run package:win
       - run: npm run test:desktop
       - run: npm run test:installer
@@ -66,6 +69,9 @@ jobs:
           path: |
             tmp/ui-desktop.png
             tmp/ui-mobile.png
+            tmp/ui-english.png
+            tmp/ui-english-narrow.png
+            tmp/workspace-*.png
             tmp/desktop-packaged.png
             test-results/
           retention-days: 7

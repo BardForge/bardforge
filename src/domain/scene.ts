@@ -20,6 +20,7 @@ export interface Track {
   muted: boolean;
   solo: boolean;
   duration: number;
+  broadcast?: boolean;
 }
 export interface Scene {
   version: 1;
@@ -29,6 +30,7 @@ export interface Scene {
   groups: Group[];
   tracks: Track[];
   masterGain: number;
+  broadcastGain?: number;
   updatedAt: number;
 }
 export interface AudioAsset {
@@ -95,6 +97,7 @@ export function validateScene(value: unknown): Scene {
     !text(s.name) ||
     !validNameKey(s.nameKey) ||
     !gain(s.masterGain) ||
+    (s.broadcastGain !== undefined && !gain(s.broadcastGain)) ||
     !Number.isFinite(s.updatedAt) ||
     !Array.isArray(s.groups) ||
     !Array.isArray(s.tracks) ||
@@ -138,6 +141,7 @@ export function validateScene(value: unknown): Scene {
       !bool(t.loop) ||
       !bool(t.muted) ||
       !bool(t.solo) ||
+      (t.broadcast !== undefined && !bool(t.broadcast)) ||
       !Number.isFinite(t.duration) ||
       t.duration <= 0
     )

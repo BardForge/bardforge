@@ -14,6 +14,9 @@ A desktop audio mixer for tabletop RPG and D&D game masters: ambience, music, so
 - Create and rename categories and nested subcategories, up to 64 per scene. Volume, mute and solo inherit through the hierarchy.
 - Play, pause, stop, seek and loop audio. Trigger individual sounds from the soundboard or F1–F12.
 - Create, duplicate and delete scenes. Scene settings and copies of audio are saved locally.
+- Export portable `.bardforge` packages with original audio and import a new copy without overwriting the library. Packages are limited to 256 MB and audio integrity is checked with SHA-256.
+- Arrange saved scenes into timed or manually advanced sequences. Stopping restores the original scene; sequences never auto-start after a restart.
+- Choose dark, light or system appearance, four accent colors and compact mixer spacing. Preferences are stored locally.
 - Three synthesized demo sounds. Original files remain untouched.
 - Switch the entire interface between Russian and English, including tooltips, dialogs, errors, download states and built-in names. The choice persists after restarting and switching does not interrupt playback.
 - Standalone Windows EXE installer. The mixer needs no separate Node.js or Python installation.
@@ -31,6 +34,7 @@ For development, use Node.js 24:
 
 ```sh
 npm ci
+npm ci --prefix services/relay
 npm run dev
 ```
 
@@ -63,7 +67,9 @@ Stable builds check GitHub Releases on startup and every six hours, download upd
 
 ## Limitations
 
-This is the initial local mixer. Foundry, Discord, remote playback, device routing, voice changing, AI generation, scripting and presets are not implemented. Remote Foundry playback is **NOT VERIFIED** and must be tested before a stable release. Windows x64 is tested locally and in CI; ARM64, Linux and macOS are not supported targets yet.
+This is a development version of the standalone local mixer. Foundry integration is planned as a separately installable module and is not part of the main interface. Experimental integration source and its standalone signaling service are in `modules/foundry/` and `services/relay/`; downloading this add-on through a module manager is not released yet. Remote playback in a real Foundry world is **NOT VERIFIED** and must be tested before a stable integration release.
+
+Discord, device routing, voice changing, AI generation, the community module catalog and clip timelines are not implemented. Sequences use saved scenes; crossfades and a separate versioned preset model are not supported yet. Windows x64 is tested locally and in CI; ARM64, Linux and macOS are not supported targets yet.
 
 Audio uses Web Audio and HTMLAudio. Professional low latency has not been measured. A native engine or SQLite storage would require further work and data migration. Signal-level tests do not replace listening on the target hardware.
 

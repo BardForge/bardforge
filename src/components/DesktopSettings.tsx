@@ -1,6 +1,7 @@
 import { t, numberText, errorText } from '../i18n';
 import type { MessageKey } from '../messages';
 import { LanguagePicker } from './LanguagePicker';
+import { WorkspaceSettings } from './WorkspaceSettings';
 import { useEffect, useRef, useState } from 'react';
 import { Download, X } from 'lucide-react';
 import { IconButton } from './Controls';
@@ -47,6 +48,7 @@ export function DesktopSettings({ onClose, canRestart }: { onClose: () => void; 
         </IconButton>
       </header>
       <LanguagePicker />
+      <WorkspaceSettings />
       <p>
         {t(
           'Микшер работает сразу после установки. Дополнительные компоненты хранятся отдельно от системных программ.',

@@ -1,5 +1,16 @@
+import { archiveMessages } from './archive-messages';
+import { workspaceEn } from './workspace-messages';
+import { sequenceMessages } from './sequence-messages';
 // Russian source messages are stable keys; every key must have an English translation.
 export const en = {
+  ...archiveMessages,
+  ...workspaceEn,
+  ...sequenceMessages,
+  'Передавать игрокам': 'Send to players',
+  Трансляция: 'Broadcast',
+  'Громкость трансляции': 'Broadcast volume',
+  'Выберите дорожки в параметрах «Передавать игрокам».':
+    'Select tracks using “Send to players” in track settings.',
   'Звуковая сцена': 'Sound scene',
   'Название сцены': 'Scene name',
   'Открываем библиотеку…': 'Opening library…',
