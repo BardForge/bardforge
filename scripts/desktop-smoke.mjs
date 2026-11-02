@@ -27,10 +27,13 @@ try {
   });
   assert.deepEqual(settings, { sandbox: true, contextIsolation: true, nodeIntegration: false });
   await page.getByRole('button', { name: 'Стоп', exact: true }).click();
-  const exported = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Экспорт сцены', exact: true }).click();
   const archive = path.join(profile, 'desktop-roundtrip.bardforge');
-  await (await exported).saveAs(archive);
+  // Replace only the native picker in this isolated test; the real IPC/file writer is exercised.
+  await desktop.evaluate(({ dialog }, filePath) => {
+    dialog.showSaveDialog = async () => ({ canceled: false, filePath });
+  }, archive);
+  await page.getByRole('button', { name: 'Экспорт сцены', exact: true }).click();
+  await page.getByText('Сцена экспортирована.', { exact: true }).waitFor();
   await page.locator('input[accept=".bardforge"]').setInputFiles(archive);
   await page.getByText('Сцена импортирована как новая.', { exact: true }).waitFor();
   assert.equal(await page.getByTestId('track-row').count(), 3);

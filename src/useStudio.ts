@@ -246,6 +246,16 @@ export function useStudio() {
       if (!current.current) return;
       await persist(current.current);
       const blob = await exportSceneArchive(current.current, (id) => repository.getAsset(id));
+      if (window.bardforge?.saveSceneArchive) {
+        if (
+          await window.bardforge.saveSceneArchive(
+            new Uint8Array(await blob.arrayBuffer()),
+            archiveFileName(nameOf(current.current)),
+          )
+        )
+          setNotice('Сцена экспортирована.');
+        return;
+      }
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;

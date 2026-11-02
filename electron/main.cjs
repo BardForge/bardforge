@@ -1,4 +1,5 @@
-const { app, BrowserWindow, Menu, protocol, session, ipcMain } = require('electron');
+const { app, BrowserWindow, Menu, protocol, session, ipcMain, dialog } = require('electron');
+const { saveSceneArchive } = require('./scene-export.cjs');
 const { autoUpdater } = require('electron-updater');
 const { ComponentManager } = require('./components.cjs');
 const { createUpdates } = require('./updates.cjs');
@@ -34,6 +35,15 @@ handle('desktop:status', async () => ({
   update: updates.state(),
   components: await components.list(),
 }));
+handle('desktop:export-scene', (bytes, name) =>
+  saveSceneArchive(bytes, name, (defaultPath) =>
+    dialog.showSaveDialog(window, {
+      defaultPath,
+      filters: [{ name: 'BardForge', extensions: ['bardforge'] }],
+      properties: ['showOverwriteConfirmation'],
+    }),
+  ),
+);
 handle('desktop:check-updates', () => {
   void updates.check();
 });

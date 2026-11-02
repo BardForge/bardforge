@@ -16,6 +16,7 @@ interface DesktopStatus {
 }
 interface Window {
   bardforge?: {
+    saveSceneArchive?(bytes: Uint8Array, name: string): Promise<boolean>;
     status(): Promise<DesktopStatus>;
     checkUpdates(): Promise<void>;
     installUpdate(): Promise<void>;
