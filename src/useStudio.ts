@@ -3,6 +3,7 @@ import { AudioEngine, inspectAudio } from './audio/engine';
 import { demoWav } from './audio/demo';
 import { createScene, type Group, type Scene, type Track } from './domain/scene';
 import { Repository } from './storage/repository';
+import { archiveFileName, exportSceneArchive, readSceneArchive } from './storage/archive';
 import { errorText, nameOf, t, UserError } from './i18n';
 
 export function useStudio() {
@@ -14,6 +15,7 @@ export function useStudio() {
   const [busy, setBusy] = useState(true);
   const locked = useRef(true);
   const [error, setError] = useState<unknown>('');
+  const [notice, setNotice] = useState<'Сцена экспортирована.' | 'Сцена импортирована как новая.' | ''>('');
   const [saved, setSaved] = useState(true);
   const [playback, setPlayback] = useState(engine.snapshot());
   const [level, setLevel] = useState(0);
@@ -52,13 +54,15 @@ export function useStudio() {
     assign(next);
     void persist(next).catch(() => {});
   };
-  const activate = async (next: Scene) => {
+  const activate = async (next: Scene, signal?: AbortSignal) => {
+    signal?.throwIfAborted();
     engine.clear();
     assign(next);
     setSaved(true);
     const missing: Track[] = [];
     for (const track of next.tracks) {
       const asset = await repository.getAsset(track.assetId);
+      signal?.throwIfAborted();
       if (asset) await engine.loadTrack(track.id, asset.blob);
       else missing.push(track);
     }
@@ -73,16 +77,20 @@ export function useStudio() {
           }),
         ),
       );
+    return missing.length === 0;
   };
   const run = async (action: () => Promise<void>) => {
-    if (locked.current) return;
+    if (locked.current) return false;
     locked.current = true;
     setBusy(true);
     setError('');
+    setNotice('');
     try {
       await action();
+      return true;
     } catch (e) {
-      report(e);
+      if (!(e instanceof DOMException && e.name === 'AbortError')) report(e);
+      return false;
     } finally {
       locked.current = false;
       setBusy(false);
@@ -140,6 +148,26 @@ export function useStudio() {
       await queue.current;
       const next = scenes.find((s) => s.id === id);
       if (next) await activate(next);
+    });
+  const activateSequenceScene = (id: string, autoplay: boolean, signal: AbortSignal) =>
+    run(async () => {
+      signal.throwIfAborted();
+      if (!saved && current.current) await persist(current.current);
+      await queue.current;
+      const next = (await repository.listScenes()).find((item) => item.id === id);
+      signal.throwIfAborted();
+      if (!next) throw new Error('Сцена этапа удалена.');
+      if (!(await activate(next, signal))) throw new Error('Не удалось запустить этап последовательности.');
+      signal.throwIfAborted();
+      if (!autoplay) return;
+      const abortPlayback = () => engine.stop();
+      signal.addEventListener('abort', abortPlayback, { once: true });
+      try {
+        await engine.play(next.tracks.map((track) => track.id));
+        signal.throwIfAborted();
+      } finally {
+        signal.removeEventListener('abort', abortPlayback);
+      }
     });
   const newScene = () =>
     run(async () => {
@@ -212,6 +240,30 @@ export function useStudio() {
         await persist(next);
       }
       if (failures.length) setError(failures);
+    });
+  const exportScene = () =>
+    run(async () => {
+      if (!current.current) return;
+      await persist(current.current);
+      const blob = await exportSceneArchive(current.current, (id) => repository.getAsset(id));
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = archiveFileName(nameOf(current.current));
+      document.body.append(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
+      setNotice('Сцена экспортирована.');
+    });
+  const importScene = (file: File) =>
+    run(async () => {
+      if (!saved && current.current) await persist(current.current);
+      await queue.current;
+      const bundle = await readSceneArchive(file, inspectAudio);
+      await repository.importScene(bundle.scene, bundle.assets);
+      await activate(bundle.scene);
+      setNotice('Сцена импортирована как новая.');
     });
   const loadDemo = () =>
     run(async () => {
@@ -303,18 +355,24 @@ export function useStudio() {
     scenes,
     busy,
     error: errorText(error),
+    notice: notice ? t(notice) : '',
     saved,
     playback,
     level,
+    broadcastStream: () => engine.getBroadcastStream(),
     change,
     trackChange,
     groupChange,
     addGroup,
     selectScene,
+    activateAndPlay: (id: string, signal: AbortSignal) => activateSequenceScene(id, true, signal),
+    restoreSequenceScene: (id: string, signal: AbortSignal) => activateSequenceScene(id, false, signal),
     newScene,
     duplicateScene,
     deleteScene,
     importFiles,
+    importScene,
+    exportScene,
     loadDemo,
     play,
     pause,

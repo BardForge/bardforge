@@ -1,6 +1,6 @@
 {
   "name": "bardforge-studio",
-  "version": "0.1.0-dev.2",
+  "version": "0.1.0-dev.3",
   "private": true,
   "description": "Local audio scenes for tabletop RPG sessions",
   "type": "module",
@@ -16,11 +16,12 @@
     "check:public": "node scripts/check-public.mjs",
     "package:win": "npm run build && node scripts/package.mjs",
     "lint": "eslint . --max-warnings 0",
-    "format": "prettier --write src tests electron scripts *.ts *.js *.json *.html *.md .github",
-    "format:check": "prettier --check src tests electron scripts *.ts *.js *.json *.html *.md .github",
+    "format": "prettier --write src tests electron scripts modules services *.ts *.js *.json *.html *.md .github",
+    "format:check": "prettier --check src tests electron scripts modules services *.ts *.js *.json *.html *.md .github",
     "check:licenses": "node scripts/check-licenses.mjs",
     "test:desktop": "node scripts/desktop-smoke.mjs",
-    "test:installer": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/installer-smoke.ps1"
+    "test:installer": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/installer-smoke.ps1",
+    "test:transport": "node tests/transport.browser.mjs"
   },
   "engines": {
     "node": ">=22.12"

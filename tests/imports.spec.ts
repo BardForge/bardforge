@@ -4,7 +4,7 @@ import { demoWav } from '../src/audio/demo';
 test('mixed import keeps valid audio, applies nested mute and restores after restart', async ({ page }) => {
   await page.goto('/');
   const wav = Buffer.from(await demoWav('drone').arrayBuffer());
-  await page.locator('input[type=file]').setInputFiles([
+  await page.locator('input[type=file][accept^="audio/"]').setInputFiles([
     { name: 'test-tone.wav', mimeType: 'audio/wav', buffer: wav },
     { name: 'bad.wav', mimeType: 'audio/wav', buffer: Buffer.from('broken') },
   ]);

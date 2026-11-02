@@ -18,6 +18,7 @@ describe('complete RU/EN catalogs', () => {
           percent: 50,
           version: '1',
           count: 3,
+          number: 1,
           duration: '00:12',
         }),
       ).not.toMatch(/\{\w+\}/);

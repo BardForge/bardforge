@@ -1,5 +1,7 @@
 import { t, nameOf, useLanguage } from './i18n';
 import { LanguagePicker } from './components/LanguagePicker';
+import { useWorkspaceAppearance } from './workspace';
+import { SequencePanel } from './components/SequencePanel';
 import { useRef, useState } from 'react';
 import { AudioLines, Music2, Plus, Save, Search, Settings, SlidersHorizontal, X } from 'lucide-react';
 import { useStudio } from './useStudio';
@@ -11,6 +13,7 @@ import { Inspector } from './components/Inspector';
 import { Soundboard } from './components/Soundboard';
 import { DesktopSettings } from './components/DesktopSettings';
 export default function App() {
+  useWorkspaceAppearance();
   const { languageSaved } = useLanguage();
   const studio = useStudio();
   const picker = useRef<HTMLInputElement>(null);
@@ -83,6 +86,7 @@ export default function App() {
             </span>
           </div>
         </header>
+        <SequencePanel studio={studio} />
         {!languageSaved && (
           <p className="error-banner" role="alert">
             {t('Не удалось сохранить выбор языка. После перезапуска выберите его снова.')}

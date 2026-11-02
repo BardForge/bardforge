@@ -5,6 +5,7 @@ type Voice = {
   url: string;
   source: MediaElementAudioSourceNode;
   gain: GainNode;
+  broadcastGain: GainNode;
   request: number;
   error?: string;
 };
@@ -54,6 +55,8 @@ export class AudioEngine {
   private context?: AudioContext;
   private master?: GainNode;
   private analyser?: AnalyserNode;
+  private broadcastMaster?: GainNode;
+  private broadcastDestination?: MediaStreamAudioDestinationNode;
   private samples?: Float32Array<ArrayBuffer>;
   private voices = new Map<string, Voice>();
   private scene?: Scene;
@@ -73,8 +76,23 @@ export class AudioEngine {
       this.analyser.fftSize = 512;
       this.samples = new Float32Array(512);
       this.master.connect(limiter).connect(this.analyser).connect(this.context.destination);
+      this.broadcastMaster = this.context.createGain();
+      this.broadcastDestination = this.context.createMediaStreamDestination();
+      const broadcastLimiter = this.context.createDynamicsCompressor();
+      broadcastLimiter.threshold.value = -3;
+      broadcastLimiter.knee.value = 0;
+      broadcastLimiter.ratio.value = 20;
+      broadcastLimiter.attack.value = 0.003;
+      broadcastLimiter.release.value = 0.15;
+      this.broadcastMaster.connect(broadcastLimiter).connect(this.broadcastDestination);
+      this.broadcastMaster.gain.value = this.scene?.broadcastGain ?? 0.8;
     }
     return this.context;
+  }
+
+  getBroadcastStream(): MediaStream {
+    this.ensureContext();
+    return this.broadcastDestination!.stream;
   }
 
   async loadTrack(id: string, blob: Blob): Promise<void> {
@@ -87,7 +105,10 @@ export class AudioEngine {
     const gain = context.createGain();
     gain.gain.value = 0;
     source.connect(gain).connect(this.master!);
-    const voice: Voice = { audio, url, source, gain, request: 0 };
+    const broadcastGain = context.createGain();
+    broadcastGain.gain.value = 0;
+    source.connect(broadcastGain).connect(this.broadcastMaster!);
+    const voice: Voice = { audio, url, source, gain, broadcastGain, request: 0 };
     audio.onerror = () => {
       voice.error = 'Не удалось воспроизвести файл.';
     };
@@ -98,6 +119,7 @@ export class AudioEngine {
     this.scene = scene;
     if (!this.context) return;
     this.master!.gain.setTargetAtTime(scene.masterGain, this.context.currentTime, 0.015);
+    this.broadcastMaster!.gain.setTargetAtTime(scene.broadcastGain ?? 0.8, this.context.currentTime, 0.015);
     for (const [id, voice] of this.voices) {
       const track = scene.tracks.find((t) => t.id === id);
       if (!track) {
@@ -106,6 +128,11 @@ export class AudioEngine {
       }
       voice.audio.loop = track.loop;
       voice.gain.gain.setTargetAtTime(effectiveGain(scene, id), this.context.currentTime, 0.015);
+      voice.broadcastGain.gain.setTargetAtTime(
+        track.broadcast ? effectiveGain(scene, id) : 0,
+        this.context.currentTime,
+        0.015,
+      );
     }
   }
 
@@ -172,6 +199,7 @@ export class AudioEngine {
     v.audio.load();
     v.source.disconnect();
     v.gain.disconnect();
+    v.broadcastGain.disconnect();
     URL.revokeObjectURL(v.url);
     this.voices.delete(id);
   }

@@ -1,9 +1,10 @@
 import { t, nameOf } from '../i18n';
-import { useState } from 'react';
-import { Copy, FolderClosed, Plus, Search, Trash2, TreeDeciduous } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Copy, Download, FolderClosed, Plus, Search, Trash2, TreeDeciduous, Upload } from 'lucide-react';
 import type { Studio } from '../useStudio';
 export function Sidebar({ studio, onDelete }: { studio: Studio; onDelete: () => void }) {
   const [query, setQuery] = useState('');
+  const archiveInput = useRef<HTMLInputElement>(null);
   return (
     <aside className="sidebar">
       <div className="brand">
@@ -62,6 +63,33 @@ export function Sidebar({ studio, onDelete }: { studio: Studio; onDelete: () => 
             {t('Удалить')}
           </button>
         </div>
+      )}
+      <div className="scene-actions" title={t('Сцена со всеми аудиофайлами · до 256 МБ')}>
+        <button disabled={studio.busy || !studio.scene} onClick={() => void studio.exportScene()}>
+          <Download size={15} />
+          {t('Экспорт сцены')}
+        </button>
+        <button disabled={studio.busy} onClick={() => archiveInput.current?.click()}>
+          <Upload size={15} />
+          {t('Импорт сцены')}
+        </button>
+      </div>
+      <input
+        ref={archiveInput}
+        type="file"
+        accept=".bardforge"
+        hidden
+        aria-label={t('Импорт сцены')}
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          event.target.value = '';
+          if (file) void studio.importScene(file);
+        }}
+      />
+      {studio.notice && (
+        <p className="archive-notice" role="status">
+          {studio.notice}
+        </p>
       )}
       <div className="library-note">
         <FolderClosed size={20} />

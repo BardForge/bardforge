@@ -37,7 +37,7 @@ test('demo plays, pauses, stops and survives reload with its settings', async ({
 test('invalid audio is reported and narrow layout stays inside viewport', async ({ page }) => {
   await page.goto('/');
   await page
-    .locator('input[type=file]')
+    .locator('input[type=file][accept^="audio/"]')
     .setInputFiles({ name: 'broken.wav', mimeType: 'audio/wav', buffer: Buffer.from('not audio') });
   await expect(page.getByRole('alert')).toContainText('broken.wav');
   await expect(page.getByTestId('track-row')).toHaveCount(0);

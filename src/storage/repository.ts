@@ -61,6 +61,41 @@ export class Repository {
   async getAsset(id: string): Promise<AudioAsset | undefined> {
     return this.transact('assets', 'readonly', (s) => s.get(id));
   }
+  async importScene(scene: Scene, assets: AudioAsset[]): Promise<void> {
+    const valid = validateScene(scene);
+    const required = new Set(valid.tracks.map((track) => track.assetId));
+    const ids = new Set(assets.map((asset) => asset.id));
+    if (
+      ids.size !== assets.length ||
+      ids.size !== required.size ||
+      assets.some(
+        (asset) =>
+          !required.has(asset.id) ||
+          !(asset.blob instanceof Blob) ||
+          !asset.blob.size ||
+          typeof asset.name !== 'string' ||
+          !asset.name.trim() ||
+          !Number.isFinite(asset.duration) ||
+          asset.duration <= 0,
+      )
+    )
+      throw new Error('В архиве отсутствует аудиофайл или нарушены связи сцены.');
+    const db = await this.open();
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(['scenes', 'assets'], 'readwrite');
+      tx.oncomplete = () => resolve();
+      tx.onabort = () => reject(tx.error ?? new Error('Не удалось сохранить данные на диск.'));
+      // add() deliberately rejects a collision instead of overwriting existing content.
+      // IndexedDB aborts all writes together on quota, collision, or request errors.
+      try {
+        for (const asset of assets) tx.objectStore('assets').add(asset);
+        tx.objectStore('scenes').add(valid);
+      } catch (error) {
+        tx.abort();
+        reject(error);
+      }
+    });
+  }
   async close(): Promise<void> {
     if (this.database) (await this.database).close();
     this.database = undefined;

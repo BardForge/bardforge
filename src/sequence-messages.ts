@@ -1,0 +1,28 @@
+export const sequenceMessages = {
+  'Последовательность сцен': 'Scene sequence',
+  Ритуал: 'Ritual',
+  'Этапы переключают сцены и запускают их дорожки. После завершения вернётся исходная сцена без воспроизведения.':
+    'Stages switch scenes and play their tracks. On completion, the original scene is restored without playback.',
+  'Добавить текущую сцену': 'Add current scene',
+  'Сцена этапа': 'Stage scene',
+  'Длительность этапа, секунд': 'Stage duration, seconds',
+  '0 — переход вручную; 1–86400 — по таймеру.': '0 — advance manually; 1–86400 — advance on a timer.',
+  'Поднять этап': 'Move stage up',
+  'Опустить этап': 'Move stage down',
+  'Удалить этап': 'Remove stage',
+  'Запустить последовательность': 'Start sequence',
+  'Следующий этап': 'Next stage',
+  'Остановить последовательность': 'Stop sequence',
+  'Этап {number} из {count}': 'Stage {number} of {count}',
+  'Переключение сцены…': 'Switching scene…',
+  'Возврат к исходной сцене…': 'Restoring original scene…',
+  'Последовательность завершена.': 'Sequence completed.',
+  'Последовательность остановлена.': 'Sequence stopped.',
+  'Не удалось запустить этап последовательности.': 'Could not start the sequence stage.',
+  'Не удалось восстановить исходную сцену.': 'Could not restore the original scene.',
+  'Сцена этапа удалена.': 'The stage scene was deleted.',
+  'Удалённая сцена (будет пропущена)': 'Deleted scene (will be skipped)',
+  'Добавьте хотя бы одну доступную сцену.': 'Add at least one available scene.',
+  'Не удалось сохранить последовательность на этом устройстве.':
+    'Could not save the sequence on this device.',
+} as const;

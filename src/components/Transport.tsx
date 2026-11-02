@@ -2,6 +2,7 @@ import { t } from '../i18n';
 import { Pause, Play, Square, Volume2 } from 'lucide-react';
 import type { Studio } from '../useStudio';
 import { Volume } from './Controls';
+import { requestSequenceStop } from '../sequence';
 export function Transport({ studio }: { studio: Studio }) {
   const ids = studio.scene?.tracks.filter((t) => studio.playback[t.id]).map((t) => t.id) ?? [];
   const playing = ids.some((id) => studio.playback[id]?.playing);
@@ -15,7 +16,13 @@ export function Transport({ studio }: { studio: Studio }) {
         {playing ? <Pause size={20} /> : <Play size={20} />}
         {playing ? t('Пауза сцены') : t('Играть сцену')}
       </button>
-      <button className="button stop-button" disabled={!ids.length} onClick={() => studio.stop()}>
+      <button
+        className="button stop-button"
+        onClick={() => {
+          requestSequenceStop();
+          studio.stop();
+        }}
+      >
         <Square size={17} />
         {t('Стоп')}
       </button>

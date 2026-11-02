@@ -62,7 +62,7 @@ test('existing errors change language, and custom category names are never trans
   await page.getByLabel('Название группы: Новая группа', { exact: true }).fill('Музыка');
   await page.getByLabel('Название группы: Новая группа', { exact: true }).press('Enter');
   await page
-    .locator('input[type=file]')
+    .locator('input[type=file][accept^="audio/"]')
     .setInputFiles({ name: 'broken.wav', mimeType: 'audio/wav', buffer: Buffer.from('broken') });
   await expect(page.getByRole('alert')).toContainText('Формат не поддерживается');
   await page.getByLabel('Язык / Language').selectOption('en');
