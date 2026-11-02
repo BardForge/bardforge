@@ -4,9 +4,11 @@
 
 Аудиоприложение для мастеров настольных RPG: окружение, музыка, эффекты и сохранённые звуковые сцены.
 
-**Статус: локальная development-сборка, не стабильный релиз.** Windows x64, Electron + React. Foundry и AI-функции ещё не реализованы.
+**Статус: локальная development-сборка, не стабильный релиз.** Windows x64, Electron + React. Отдельный [модуль Foundry](https://github.com/BardForge/bardforge-foundry) экспериментальный, реальный удалённый игрок ещё не проверен. AI-функции не реализованы.
 
-**AI-assisted development / Разработка с использованием ИИ.** BardForge создаётся с использованием AI-инструментов. Все изменения проверяются сопровождающими; ответственность за качество, безопасность и лицензирование несут люди.
+**AI-Assisted Development / Разработка с использованием ИИ.** BardForge is developed with assistance from artificial intelligence tools. AI may contribute to code, documentation, testing, and technical design. All contributions remain subject to human review, validation, and applicable licensing requirements.
+
+Организация: [BardForge](https://github.com/BardForge). [Единая доска разработки](https://github.com/orgs/BardForge/projects/1), [правила участия](CONTRIBUTING.md), [безопасность](SECURITY.md), [ограничения](DISCLAIMER.md). Перенос этого репозитория в организацию ещё не выполнен.
 
 ## Что работает
 

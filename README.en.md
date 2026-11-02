@@ -4,9 +4,11 @@
 
 A desktop audio mixer for tabletop RPG and D&D game masters: ambience, music, sound effects and saved scenes.
 
-**Status: local development build, not a stable release.** Windows x64, Electron + React. Foundry integration and AI features are not implemented yet.
+**Status: local development build, not a stable release.** Windows x64, Electron + React. The separate [Foundry module](https://github.com/BardForge/bardforge-foundry) is experimental; real remote-player playback is not verified. AI features are not implemented.
 
-**AI-assisted development.** BardForge is developed with AI tools. Maintainers review changes and remain responsible for quality, security and licensing.
+**AI-Assisted Development.** BardForge is developed with assistance from artificial intelligence tools. AI may contribute to code, documentation, testing, and technical design. All contributions remain subject to human review, validation, and applicable licensing requirements.
+
+Organization: [BardForge](https://github.com/BardForge). [Shared development board](https://github.com/orgs/BardForge/projects/1), [contributing](CONTRIBUTING.md), [security](SECURITY.md), [limitations](DISCLAIMER.md). This repository has not yet been transferred to the organization.
 
 ## Available features
 
