@@ -10,6 +10,11 @@ await build({
     directories: { output: 'build' },
     electronDownload: process.env.ELECTRON_CACHE ? { cache: process.env.ELECTRON_CACHE } : undefined,
     files: ['dist/**/*', 'electron/**/*.cjs', 'electron/catalog.json', 'package.json'],
+    extraFiles: [
+      { from: 'LICENSE', to: 'bardforge-notices/LICENSE' },
+      { from: 'LICENSING.md', to: 'bardforge-notices/LICENSING.md' },
+      { from: 'THIRD_PARTY.md', to: 'bardforge-notices/THIRD_PARTY.md' },
+    ],
     asar: true,
     npmRebuild: false,
     win: {
