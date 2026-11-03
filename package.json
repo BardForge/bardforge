@@ -16,8 +16,8 @@
     "check:public": "node scripts/check-public.mjs",
     "package:win": "npm run build && node scripts/package.mjs",
     "lint": "eslint . --max-warnings 0",
-    "format": "prettier --write src tests electron scripts modules services *.ts *.js *.json *.html *.md .github",
-    "format:check": "prettier --check src tests electron scripts modules services *.ts *.js *.json *.html *.md .github",
+    "format": "prettier --write src tests electron scripts modules services *.ts *.js *.json *.html *.md .github docs",
+    "format:check": "prettier --check src tests electron scripts modules services *.ts *.js *.json *.html *.md .github docs",
     "check:licenses": "node scripts/check-licenses.mjs",
     "test:desktop": "node scripts/desktop-smoke.mjs",
     "test:installer": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/installer-smoke.ps1",
@@ -55,5 +55,6 @@
   "overrides": {
     "glob": "^14.0.3",
     "minimatch": "^11.0.3"
-  }
+  },
+  "license": "MIT"
 }

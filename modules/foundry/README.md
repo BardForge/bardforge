@@ -1,5 +1,7 @@
 # BardForge Receiver for Foundry VTT
 
+> Основной репозиторий интеграции: [BardForge/bardforge-foundry](https://github.com/BardForge/bardforge-foundry). Эта копия сохранена для проверок Core; новые изменения транспорта направляйте сначала туда. [Границы и порядок синхронизации](../../docs/integrations/foundry.md).
+
 An optional browser receiver for the Studio broadcast bus. It uses the included dependency-free WebRTC client and a separately hosted [authenticated signaling relay](../../services/relay/README.md). It does not upload scenes or audio files to Foundry and does not use Foundry's socket to carry audio.
 
 **Separate development add-on:** the base Studio application currently does not expose a publisher panel. The receiver ZIP alone does not enable broadcasting from the base app. Publisher integration is future work; the included browser transport test provides a working standalone sender/receiver verification.

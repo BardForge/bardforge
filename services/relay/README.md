@@ -1,5 +1,7 @@
 # BardForge signaling relay
 
+> Основной репозиторий интеграции: [BardForge/bardforge-foundry](https://github.com/BardForge/bardforge-foundry). Эта копия сохранена для проверок Core; новые изменения транспорта направляйте сначала туда. [Границы и порядок синхронизации](../../docs/integrations/foundry.md).
+
 Development transport for a private tabletop session. One authenticated publisher sends its selected mixer output to up to 16 listeners by default. The standalone Node service forwards WebRTC offers, answers and ICE candidates. **Audio travels over encrypted WebRTC, directly or through your TURN server; this service does not host or record audio.** Each listener consumes a separate outgoing stream from the publisher.
 
 **Optional add-on source, not enabled in the base Studio application.** The current base app does not mount the publisher panel or expose broadcast track controls. The receiver and relay can be tested with the included browser proof; using them with Studio requires a future separately integrated publisher add-on. The steps below describe that integration's deployment, not an already available base-app feature.

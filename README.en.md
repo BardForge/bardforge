@@ -2,81 +2,50 @@
 
 [Русский](README.md) · English
 
-A desktop audio mixer for tabletop RPG and D&D game masters: ambience, music, sound effects and saved scenes.
+**Build an atmosphere and control it while you play.** Layer rain, background music and one-shot effects in a saved scene. BardForge's first usable tool is a local mixer for tabletop RPGs, D&D and other games and storytelling sessions. Voice processing, AI, music tools and additional integrations are future directions.
 
-**Status: local development build, not a stable release.** Windows x64, Electron + React. The separate [Foundry module](https://github.com/BardForge/bardforge-foundry) is experimental; real remote-player playback is not verified. AI features are not implemented.
+**Windows x64 development build. No public stable installer is available yet.** The official core application is free and its source code is licensed under [MIT](LICENSE).
 
-**AI-Assisted Development.** BardForge is developed with assistance from artificial intelligence tools. AI may contribute to code, documentation, testing, and technical design. All contributions remain subject to human review, validation, and applicable licensing requirements.
+![BardForge's actual English interface with the built-in demo](docs/images/studio-en.png)
 
-Organization: [BardForge](https://github.com/BardForge). [Shared development board](https://github.com/orgs/BardForge/projects/1), [contributing](CONTRIBUTING.md), [security](SECURITY.md), [limitations](DISCLAIMER.md). This repository has not yet been transferred to the organization.
+Actual `0.1.0-dev.3` browser preview, using built-in synthesized sounds; not a future UI mockup.
 
-## Available features
+## What works today
 
-- Import local audio, including WAV, MP3 and OGG: up to 100 MB per file and 128 tracks per scene.
-- Create and rename categories and nested subcategories, up to 64 per scene. Volume, mute and solo inherit through the hierarchy.
-- Play, pause, stop, seek and loop audio. Trigger individual sounds from the soundboard or F1–F12.
-- Create, duplicate and delete scenes. Scene settings and copies of audio are saved locally.
-- Export portable `.bardforge` packages with original audio and import a new copy without overwriting the library. Packages are limited to 256 MB and audio integrity is checked with SHA-256.
-- Arrange saved scenes into timed or manually advanced sequences. Stopping restores the original scene; sequences never auto-start after a restart.
-- Choose dark, light or system appearance, four accent colors and compact mixer spacing. Preferences are stored locally.
-- Three synthesized demo sounds. Original files remain untouched.
-- Switch the entire interface between Russian and English, including tooltips, dialogs, errors, download states and built-in names. The choice persists after restarting and switching does not interrupt playback.
-- Standalone Windows EXE installer. The mixer needs no separate Node.js or Python installation.
-- Download an isolated Python runtime from python.org, resume partial downloads, verify SHA-256 and test execution. System Python and PATH remain unchanged.
+- Import local WAV, MP3 and OGG audio; create categories and nested groups with volume, mute and solo.
+- Play scenes or individual soundboard tiles; use F1–F12 while the app is focused.
+- Save and duplicate scenes; export and import portable `.bardforge` packages with audio.
+- Arrange timed or manually advanced scene sequences.
+- Switch the entire UI between Russian and English without changing custom names. Choose theme, accent and mixer density.
 
-Custom names and names in older scenes without language metadata remain exactly as entered. The installer has its own language selector; the app has a language selector in the header and settings. Native file dialogs follow the Windows language.
+The local mixer needs no Foundry account or separately installed Node.js/Python. Optional Python preparation is available for future modules; AI models and a module catalog are not implemented.
 
-Python can be prepared in advance. Working AI modules and a model catalog are not available yet. Future module dependencies will be delivered as verified packages; this embedded runtime is not intended for manual pip use.
+## Try your first scene
 
-## Running and building
+1. In the app, choose **Try demo scene** to load **Night forest**.
+2. Use the bottom scene playback control and adjust Ambience, Music and Effects.
+3. Trigger a soundboard tile for a single sound, or pause/stop the scene.
+4. Choose **Save** and wait for the saved status.
+5. Choose **New scene**, then **Import audio** for your own material.
 
-Users will install `BardForge-Studio-Setup-<version>.exe`. No public stable release is available yet. The installer runs for the current user without requiring administrator privileges. Local development builds are unsigned.
+The installer is named `BardForge-Studio-Setup-<version>.exe`. Development builds are unsigned and do not receive stable-release updates. No download is advertised before a release is approved. Stable update delivery between published versions is **NOT VERIFIED**.
 
-For development, use Node.js 24:
+The detailed documentation is currently in Russian: [installation](docs/getting-started/installation.md), [first scene](docs/getting-started/first-scene.md), [user guides](docs/README.md), [FAQ](docs/faq.md). The application UI itself supports both languages.
 
-```sh
-npm ci
-npm ci --prefix services/relay
-npm run dev
-```
+## Availability and roadmap
 
-Use `npm run dev:web` for a browser preview. Component downloads and app updates require the Windows application.
+The separate [Foundry integration](https://github.com/BardForge/bardforge-foundry) is **experimental**: receiver, signaling relay and transport SDK exist, but Studio has no integrated sender panel. Playback in a real Foundry world with a remote player and TURN is **NOT VERIFIED**.
 
-```sh
-npm test
-npm run lint
-npm run format:check
-npm run build
-npx playwright install chromium
-npm run test:e2e
-npm run package:win
-npm run test:desktop
-npm run test:installer
-npm audit --audit-level=moderate
-npm run check:licenses
-npm run check:public
-```
+Standalone presets, public Plugin SDK, a module catalog, device routing, Discord, Voice Changer and AI generation are planned. No release dates are promised. See the [roadmap](docs/roadmap.md).
 
-The installer is written to `build/`; the unpacked app is in `build/win-unpacked/`. Building never publishes a release automatically.
+## Development and community
 
-`test:installer` installs into an isolated test directory, checks installed file integrity, exercises the app and removes the test installation. It refuses to run when BardForge is already installed or running. Set `BARDFORGE_TEST_DOWNLOADS=1` to test real Python downloads.
+[Build](docs/development/building.md), [architecture](docs/development/architecture.md), [tests](docs/development/testing.md), [contributing](CONTRIBUTING.md), [security](SECURITY.md), [shared board](https://github.com/orgs/BardForge/projects/1), [discussions](https://github.com/orgs/BardForge/discussions).
 
-## Local data and updates
+Topic branches target `dev`; `main` and releases require the owner's decision. The core repository has not yet moved to the organization. Foundry's canonical repository is `BardForge/bardforge-foundry`; copies in Core support existing tests and are not an independently maintained product.
 
-Development builds store data in `%APPDATA%/BardForge Studio Dev`; stable builds use `%APPDATA%/BardForge Studio`. Scenes and audio are stored in IndexedDB; optional components live in the `components` subdirectory. Deleting a scene retains audio blobs that other scenes may use. Unused audio cleanup is not implemented. Uninstalling preserves the library.
+## License and AI-Assisted Development
 
-Stable builds check GitHub Releases on startup and every six hours, download updates and offer installation after playback stops and saving completes. They never automatically restart during a session. Development builds do not receive release updates. Differential downloads are disabled. Update delivery between two published versions is **NOT VERIFIED** because there are no public releases yet.
+Original software and accompanying technical text: [MIT](LICENSE). Preserve copyright and permission notices. The name, logo and brand assets are separate; no brand endorsement permission is granted. Dependencies, third-party audio, models and datasets retain their own terms. See [licensing scope](LICENSING.md) and [third-party notices](THIRD_PARTY.md).
 
-## Limitations
-
-This is a development version of the standalone local mixer. Foundry integration is planned as a separately installable module and is not part of the main interface. Experimental integration source and its standalone signaling service are in `modules/foundry/` and `services/relay/`; downloading this add-on through a module manager is not released yet. Remote playback in a real Foundry world is **NOT VERIFIED** and must be tested before a stable integration release.
-
-Discord, device routing, voice changing, AI generation, the community module catalog and clip timelines are not implemented. Sequences use saved scenes; crossfades and a separate versioned preset model are not supported yet. Windows x64 is tested locally and in CI; ARM64, Linux and macOS are not supported targets yet.
-
-Audio uses Web Audio and HTMLAudio. Professional low latency has not been measured. A native engine or SQLite storage would require further work and data migration. Signal-level tests do not replace listening on the target hardware.
-
-## Contributing and licensing
-
-`main` is for stable releases; `dev` is for integration. Development uses topic branches with pull requests into `dev`. Merges and releases require maintainer approval. See [CONTRIBUTING.md](CONTRIBUTING.md).
-
-The project's source license has not been selected. Public availability does not automatically grant a license to use it. Third-party dependencies and original demonstration material are described in [THIRD_PARTY.md](THIRD_PARTY.md).
+BardForge is developed with assistance from artificial intelligence tools. AI may contribute to code, documentation, testing, and technical design. All contributions remain subject to human review, validation, and applicable licensing requirements.
