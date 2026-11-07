@@ -38,6 +38,6 @@ await build({
       installerLanguages: ['ru_RU', 'en_US'],
       displayLanguageSelector: true,
     },
-    publish: [{ provider: 'github', owner: 'ShinozakiAichi', repo: 'BardForge-Studio' }],
+    publish: [{ provider: 'github', owner: 'BardForge', repo: 'bardforge' }],
   },
 });

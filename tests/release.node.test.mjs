@@ -48,7 +48,7 @@ function validate({ version = '0.1.0', input = {}, env = {}, lockVersion = versi
         GITHUB_EVENT_PATH: 'event',
         GITHUB_EVENT_NAME: 'workflow_dispatch',
         GITHUB_REF: 'refs/heads/main',
-        GITHUB_REPOSITORY: 'ShinozakiAichi/BardForge-Studio',
+        GITHUB_REPOSITORY: 'BardForge/bardforge',
         GITHUB_ACTOR: 'ShinozakiAichi',
         GITHUB_TRIGGERING_ACTOR: 'ShinozakiAichi',
         GITHUB_SHA: sha,
@@ -73,6 +73,9 @@ test('release gate rejects development builds, lockfile drift and absent release
 
 test('release gate rejects other actors, branches and triggering workflows', () => {
   for (const env of [
+    { GITHUB_REPOSITORY: 'ShinozakiAichi/BardForge-Studio' },
+    { GITHUB_REPOSITORY: 'someone/bardforge' },
+    { GITHUB_ACTOR: 'BardForge' },
     { GITHUB_ACTOR: 'contributor' },
     { GITHUB_TRIGGERING_ACTOR: 'contributor' },
     { GITHUB_REF: 'refs/heads/dev' },

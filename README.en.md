@@ -42,7 +42,7 @@ Standalone presets, public Plugin SDK, a module catalog, device routing, Discord
 
 [Build](docs/development/building.md), [architecture](docs/development/architecture.md), [tests](docs/development/testing.md), [contributing](CONTRIBUTING.md), [security](SECURITY.md), [shared board](https://github.com/orgs/BardForge/projects/1), [discussions](https://github.com/orgs/BardForge/discussions).
 
-Topic branches target `dev`; `main` and releases require the owner's decision. The core repository has not yet moved to the organization. Foundry's canonical repository is `BardForge/bardforge-foundry`; copies in Core support existing tests and are not an independently maintained product.
+Topic branches target `dev`; `main` and releases require the owner's decision. The core repository is maintained by the BardForge organization. Foundry's canonical repository is `BardForge/bardforge-foundry`; copies in Core support existing tests and are not an independently maintained product.
 
 ## License and AI-Assisted Development
 

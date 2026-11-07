@@ -58,7 +58,7 @@ jobs:
           const assert = require('node:assert/strict');
           assert.equal(process.env.GITHUB_EVENT_NAME, 'workflow_dispatch');
           assert.equal(process.env.GITHUB_REF, 'refs/heads/main');
-          assert.equal(process.env.GITHUB_REPOSITORY, 'ShinozakiAichi/BardForge-Studio');
+          assert.equal(process.env.GITHUB_REPOSITORY, 'BardForge/bardforge');
           assert.equal(process.env.GITHUB_ACTOR, 'ShinozakiAichi');
           assert.equal(process.env.GITHUB_TRIGGERING_ACTOR, 'ShinozakiAichi');
           assert.equal(process.env.GITHUB_SERVER_URL, 'https://github.com');
@@ -116,7 +116,7 @@ jobs:
     if: >-
       github.event_name == 'workflow_dispatch' &&
       github.ref == 'refs/heads/main' &&
-      github.repository == 'ShinozakiAichi/BardForge-Studio' &&
+      github.repository == 'BardForge/bardforge' &&
       github.actor == 'ShinozakiAichi' &&
       github.triggering_actor == 'ShinozakiAichi'
     runs-on: ubuntu-latest
@@ -151,7 +151,7 @@ jobs:
           const assert = require('node:assert/strict');
           const { createHash } = require('node:crypto');
           const owner = 'ShinozakiAichi';
-          const repo = `${owner}/BardForge-Studio`;
+          const repo = 'BardForge/bardforge';
           const version = process.env.RELEASE_VERSION;
           const sha = process.env.RELEASE_COMMIT;
           const stable = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
