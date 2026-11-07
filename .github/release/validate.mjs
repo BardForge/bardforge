@@ -4,7 +4,7 @@ import { execFileSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 
 const OWNER = 'ShinozakiAichi';
-const REPOSITORY = `${OWNER}/BardForge-Studio`;
+const REPOSITORY = 'BardForge/bardforge';
 const stable = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
 const input = event.inputs ?? {};

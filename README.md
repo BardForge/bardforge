@@ -48,9 +48,9 @@ BardForge — модульная аудиоплатформа. Первый ра
 
 [Сборка](docs/development/building.md) · [архитектура](docs/development/architecture.md) · [проверки](docs/development/testing.md) · [CONTRIBUTING](CONTRIBUTING.md) · [безопасность](SECURITY.md).
 
-Разработка идёт через тематические ветки и PR в `dev`. `main` и релизы — только после решения владельца. Основной репозиторий пока находится в личном аккаунте автора; организационные материалы — в [BardForge](https://github.com/BardForge). Foundry развивается в [https://github.com/BardForge/bardforge-foundry](https://github.com/BardForge/bardforge-foundry); копии в Core сохранены для существующих проверок, а не как параллельная ветка продукта.
+Разработка идёт через тематические ветки и PR в `dev`. `main` и релизы — только после решения владельца. Основной репозиторий находится в организации BardForge; материалы сообщества — в [BardForge](https://github.com/BardForge). Foundry развивается в [https://github.com/BardForge/bardforge-foundry](https://github.com/BardForge/bardforge-foundry); копии в Core сохранены для существующих проверок, а не как параллельная ветка продукта.
 
-Помочь можно [сообщением об ошибке](https://github.com/ShinozakiAichi/BardForge-Studio/issues), улучшением документации, тестированием или участием в [Discussions](https://github.com/orgs/BardForge/discussions). Задачи собраны на [общей доске](https://github.com/orgs/BardForge/projects/1). Официальные сборы пожертвований не объявлены.
+Помочь можно [сообщением об ошибке](https://github.com/BardForge/bardforge/issues), улучшением документации, тестированием или участием в [Discussions](https://github.com/orgs/BardForge/discussions). Задачи собраны на [общей доске](https://github.com/orgs/BardForge/projects/1). Официальные сборы пожертвований не объявлены.
 
 ## Лицензия и AI-Assisted Development
 
